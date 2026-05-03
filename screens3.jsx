@@ -4,71 +4,198 @@
 // ─────────────────────────────────────────────────────────────
 // 7. AI MISSIONS
 // ─────────────────────────────────────────────────────────────
+const MISSIONS_INIT = [
+  { id:'m1', rank:'A', tier:'CRITICAL', title:'Refinance Loan #2', sub:'Save $310/mo before Q3 rate refresh', xp: 1200, prog: 0.40, days: 22, color: '#FF5A6E',
+    desc:'Variable-rate loan resets +95bps in Q3. Refinancing at 4.9% locks $84/mo for 48mo.', steps:[
+      { t:'Pull current loan terms', done:true }, { t:'Compare 3 lender quotes', done:true },
+      { t:'Submit application', done:false }, { t:'Sign + close', done:false } ] },
+  { id:'m2', rank:'A', tier:'COMPOUND', title:'Build 6-mo emergency fund', sub:'$28k of $32k · 87.5%', xp: 800, prog: 0.875, days: 60, color: '#9D4DFF',
+    desc:'Target: $32k (6 months of essential expenses). Currently auto-saving $1.2k/mo.', steps:[
+      { t:'Open HYSA', done:true }, { t:'Auto-deposit $1.2k/mo', done:true },
+      { t:'Reach $32k milestone', done:false } ] },
+  { id:'m3', rank:'B', tier:'HABIT', title:'Reduce delivery streak to <3/wk', sub:'Currently 5.2/wk · 14d window', xp: 350, prog: 0.55, days: 14, color: '#FF7AE6',
+    desc:'Behavior nudge · streak detector flagged 14-day pattern. Target: 3 deliveries/wk max.', steps:[
+      { t:'Block delivery apps mon-thu', done:true }, { t:'Meal-prep Sunday', done:false },
+      { t:'Hold streak 4 weeks', done:false } ] },
+  { id:'m4', rank:'B', tier:'GROWTH', title:'Index DCA · automate +$110/mo', sub:'Reallocated from coffee budget', xp: 600, prog: 0.10, days: 30, color: '#6DF3FF',
+    desc:'Set up automated $110/mo into VTI from coffee savings. 10y impact: +$24.8k P50.', steps:[
+      { t:'Choose broker', done:true }, { t:'Enable auto-DCA', done:false }, { t:'Verify first transfer', done:false } ] },
+  { id:'m5', rank:'S', tier:'LEGENDARY', title:'Down payment · house 2026', sub:'71% complete · ahead of plan', xp: 4000, prog: 0.71, days: 280, color: '#4ADE9B',
+    desc:'Goal: $50k down payment by Aug 2026. Current pace: 4 weeks ahead.', steps:[
+      { t:'Open dedicated savings', done:true }, { t:'$3.8k/mo auto-save', done:true },
+      { t:'Reach $35k', done:true }, { t:'Reach $50k', done:false }, { t:'Get pre-approval', done:false } ] },
+  { id:'m6', rank:'C', tier:'CLEANUP', title:'Cancel 3 zombie subscriptions', sub:'$144/mo recoverable', xp: 200, prog: 0.0, days: 7, color: '#FFB547',
+    desc:'Quark identified 3 subscriptions unused 60d+: cloud, gym, streaming overlap.', steps:[
+      { t:'Cancel cloud 2TB', done:false }, { t:'Cancel gym', done:false }, { t:'Drop Hulu Live', done:false } ] },
+  { id:'m7', rank:'B', tier:'COMPLETED', title:'Audit 90d transactions', sub:'Done · 4 leaks found', xp: 250, prog: 1, days: 0, color: '#4ADE9B',
+    desc:'Quark scanned 4,182 transactions. Surfaced FX fees, gym, streaming overlaps.', steps:[
+      { t:'Scan complete', done:true }, { t:'Review findings', done:true }, { t:'Action on top 3', done:true } ] },
+];
+
 function ScreenMissions() {
-  const missions = [
-    { rank:'A', tier:'CRITICAL', title:'Refinance Loan #2', sub:'Save $310/mo before Q3 rate refresh', xp: 1200, prog: 0.40, days: 22, color: '#FF5A6E' },
-    { rank:'A', tier:'COMPOUND', title:'Build 6-mo emergency fund', sub:'$28k of $32k · 87.5%', xp: 800, prog: 0.875, days: 60, color: '#9D4DFF' },
-    { rank:'B', tier:'HABIT',    title:'Reduce delivery streak to <3/wk', sub:'Currently 5.2/wk · 14d window', xp: 350, prog: 0.55, days: 14, color: '#FF7AE6' },
-    { rank:'B', tier:'GROWTH',   title:'Index DCA · automate +$110/mo', sub:'Reallocated from coffee budget', xp: 600, prog: 0.10, days: 30, color: '#6DF3FF' },
-    { rank:'S', tier:'LEGENDARY',title:'Down payment · house 2026',  sub:'71% complete · ahead of plan', xp: 4000, prog: 0.71, days: 280, color: '#4ADE9B' },
-    { rank:'C', tier:'CLEANUP',  title:'Cancel 3 zombie subscriptions', sub:'$144/mo recoverable', xp: 200, prog: 0.0, days: 7, color: '#FFB547' },
-  ];
+  const toast = (typeof useToast === 'function') ? useToast() : (() => {});
+  const [missions, setMissions] = React.useState(MISSIONS_INIT);
+  const [filter, setFilter] = React.useState('ACTIVE');
+  const [expanded, setExpanded] = React.useState(null);
+
+  const counts = {
+    ALL: missions.length,
+    ACTIVE: missions.filter(m => m.prog < 1).length,
+    COMPLETED: missions.filter(m => m.prog >= 1).length,
+    CRITICAL: missions.filter(m => m.rank === 'A' || m.rank === 'S').length,
+  };
+  const filtered = missions.filter(m => {
+    if (filter === 'ALL') return true;
+    if (filter === 'ACTIVE') return m.prog < 1;
+    if (filter === 'COMPLETED') return m.prog >= 1;
+    if (filter === 'CRITICAL') return (m.rank === 'A' || m.rank === 'S') && m.prog < 1;
+    return true;
+  });
+
+  const totalXp = missions.filter(m => m.prog >= 1).reduce((s, m) => s + m.xp, 0) + 1390;
+
+  const toggleStep = (mid, si) => {
+    setMissions(arr => arr.map(m => {
+      if (m.id !== mid) return m;
+      const newSteps = m.steps.map((st, i) => i === si ? { ...st, done: !st.done } : st);
+      const prog = newSteps.filter(s => s.done).length / newSteps.length;
+      return { ...m, steps: newSteps, prog };
+    }));
+  };
+  const completeMission = (mid) => {
+    setMissions(arr => arr.map(m => m.id === mid ? { ...m, prog: 1, steps: m.steps.map(s => ({ ...s, done: true })) } : m));
+    toast('Mission completed · XP awarded');
+  };
 
   return (
     <QShell active="missions" topbarProps={{
       breadcrumb: 'PROGRESSION / MISSIONS',
       title: 'Active financial missions',
-      subtitle: '6 active · 2,840 XP · Level 14 · Architect',
+      subtitle: `${counts.ACTIVE} active · ${counts.COMPLETED} completed · ${totalXp.toLocaleString()} XP · Level 14 Architect`,
       actions: <>
-        <button className="q-btn q-btn-ghost">Completed · 23</button>
-        <button className="q-btn"><QIcon name="sparkle" size={12}/> Generate mission</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast('Browsing completed · 23 total')}>Completed · 23</button>
+        <button className="q-btn" onClick={()=>toast('Generating new mission from your patterns…')}><QIcon name="sparkle" size={12}/> Generate mission</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, height: '100%' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignContent: 'start', overflow: 'auto' }} className="q-scroll">
-          {missions.map((m, i) => (
-            <div key={i} className="q-card q-card-elev" style={{ padding: 16, position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%',
-                background: `radial-gradient(circle, ${m.color}40, transparent 70%)`, pointerEvents: 'none' }} />
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
-                <div style={{
-                  width: 42, height: 42, borderRadius: 10,
-                  background: `linear-gradient(135deg, ${m.color}, ${m.color}40)`,
-                  display: 'grid', placeItems: 'center',
-                  fontFamily: 'Geist Mono', fontSize: 18, fontWeight: 600,
-                  boxShadow: `0 0 20px ${m.color}80`, color: '#0B0617',
-                }}>{m.rank}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: m.color }}>{m.tier}</div>
-                  <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{m.title}</div>
-                  <div style={{ fontSize: 11, color: 'var(--q-text-3)', marginTop: 2 }}>{m.sub}</div>
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+          {/* Filter tabs */}
+          <div style={{ display:'flex', gap: 6, padding: 4, background:'rgba(7,2,15,0.5)', borderRadius: 10, border:'1px solid var(--q-stroke-1)' }}>
+            {[
+              { k:'ACTIVE',    l:'Active' },
+              { k:'CRITICAL',  l:'Critical' },
+              { k:'COMPLETED', l:'Completed' },
+              { k:'ALL',       l:'All' },
+            ].map(t => (
+              <button key={t.k} onClick={() => setFilter(t.k)} className="q-btn q-btn-ghost" style={{
+                flex: 1, padding:'6px 10px', fontSize: 11.5, border: 'none',
+                background: filter===t.k ? 'rgba(157,77,255,0.20)' : 'transparent',
+                color: filter===t.k ? 'var(--q-violet-300)' : 'var(--q-text-3)',
+              }}>{t.l} · {counts[t.k]}</button>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignContent: 'start', overflow: 'auto', flex: 1, minHeight: 0 }} className="q-scroll">
+            {filtered.length === 0 && (
+              <div style={{ gridColumn:'1 / -1', textAlign:'center', padding:'40px 0', color:'var(--q-text-3)', fontSize: 13 }}>
+                No missions in this filter
               </div>
-              {/* progress ring */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 }}>
-                <div style={{ position: 'relative', width: 56, height: 56 }}>
-                  <svg width="56" height="56" viewBox="0 0 56 56">
-                    <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(168,85,247,0.10)" strokeWidth="4" />
-                    <circle cx="28" cy="28" r="24" fill="none" stroke={m.color} strokeWidth="4" strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 24 * m.prog} ${2 * Math.PI * 24}`}
-                      transform="rotate(-90 28 28)"
-                      style={{ filter: `drop-shadow(0 0 4px ${m.color})` }} />
-                  </svg>
-                  <div className="q-num" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
-                    fontSize: 12, fontWeight: 600, color: m.color }}>{Math.round(m.prog * 100)}%</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--q-text-3)' }}>
-                    <span>{m.days}d remaining</span>
-                    <span className="q-mono">+{m.xp} XP</span>
+            )}
+            {filtered.map(m => {
+              const isExp = expanded === m.id;
+              const isComplete = m.prog >= 1;
+              return (
+                <div key={m.id} className="q-card q-card-elev" style={{
+                  padding: 14, position: 'relative', overflow: 'hidden',
+                  gridColumn: isExp ? '1 / -1' : 'auto',
+                  borderColor: isExp ? m.color+'60' : 'var(--q-stroke-1)',
+                  boxShadow: isExp ? `0 0 0 1px ${m.color}40, 0 0 20px ${m.color}30` : undefined,
+                  transition: 'all 0.2s',
+                }}>
+                  <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%',
+                    background: `radial-gradient(circle, ${m.color}40, transparent 70%)`, pointerEvents: 'none' }} />
+                  <button onClick={() => setExpanded(isExp ? null : m.id)} style={{
+                    width:'100%', display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10,
+                    background:'transparent', border:'none', fontFamily:'inherit', cursor:'pointer', color:'inherit', textAlign:'left', padding: 0,
+                  }}>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 10,
+                      background: `linear-gradient(135deg, ${m.color}, ${m.color}40)`,
+                      display: 'grid', placeItems: 'center',
+                      fontFamily: 'Geist Mono', fontSize: 18, fontWeight: 600,
+                      boxShadow: `0 0 20px ${m.color}80`, color: '#0B0617', flexShrink: 0,
+                    }}>{m.rank}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: m.color }}>{m.tier} {isComplete && '· DONE'}</div>
+                      <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{m.title}</div>
+                      <div style={{ fontSize: 11, color: 'var(--q-text-3)', marginTop: 2 }}>{m.sub}</div>
+                    </div>
+                    <span style={{ color:'var(--q-text-3)', transform: isExp?'rotate(90deg)':'rotate(0)', transition:'transform 0.2s' }}>
+                      <QIcon name="arrow-right" size={11}/>
+                    </span>
+                  </button>
+                  {/* progress */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ position: 'relative', width: 48, height: 48 }}>
+                      <svg width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(168,85,247,0.10)" strokeWidth="3.5" />
+                        <circle cx="24" cy="24" r="20" fill="none" stroke={m.color} strokeWidth="3.5" strokeLinecap="round"
+                          strokeDasharray={`${2 * Math.PI * 20 * m.prog} ${2 * Math.PI * 20}`}
+                          transform="rotate(-90 24 24)"
+                          style={{ filter: `drop-shadow(0 0 4px ${m.color})`, transition: 'stroke-dasharray 0.3s' }} />
+                      </svg>
+                      <div className="q-num" style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+                        fontSize: 11, fontWeight: 600, color: m.color }}>{Math.round(m.prog * 100)}%</div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--q-text-3)' }}>
+                        <span>{isComplete ? 'Completed' : `${m.days}d remaining`}</span>
+                        <span className="q-mono">+{m.xp} XP</span>
+                      </div>
+                      <div style={{ height: 4, background: 'rgba(168,85,247,0.10)', borderRadius: 2, marginTop: 6, overflow: 'hidden' }}>
+                        <div style={{ width: m.prog * 100 + '%', height: '100%', background: m.color, boxShadow: `0 0 6px ${m.color}`, transition: 'width 0.3s' }} />
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ height: 4, background: 'rgba(168,85,247,0.10)', borderRadius: 2, marginTop: 6, overflow: 'hidden' }}>
-                    <div style={{ width: m.prog * 100 + '%', height: '100%', background: m.color, boxShadow: `0 0 6px ${m.color}` }} />
-                  </div>
+                  {/* expanded */}
+                  {isExp && (
+                    <div style={{ marginTop: 14, animation: 'q-fade-up 0.2s ease-out' }}>
+                      <div style={{ fontSize: 12, color: 'var(--q-text-2)', lineHeight: 1.55, marginBottom: 10 }}>{m.desc}</div>
+                      <div className="q-eyebrow" style={{ marginBottom: 6 }}>STEPS · {m.steps.filter(s => s.done).length}/{m.steps.length}</div>
+                      <div className="q-stack-sm" style={{ marginBottom: 12 }}>
+                        {m.steps.map((st, si) => (
+                          <button key={si} onClick={() => toggleStep(m.id, si)} disabled={isComplete} style={{
+                            display:'flex', alignItems:'center', gap: 10, padding:'7px 10px',
+                            background:'rgba(7,2,15,0.4)', borderRadius: 8,
+                            border: `1px solid ${st.done ? m.color+'40' : 'var(--q-stroke-1)'}`,
+                            fontFamily:'inherit', cursor: isComplete?'default':'pointer', color:'inherit', textAlign:'left', width:'100%',
+                          }}>
+                            <span style={{
+                              width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                              background: st.done ? m.color+'90' : 'transparent',
+                              border: `1px solid ${st.done ? m.color : 'var(--q-stroke-2)'}`,
+                              display: 'grid', placeItems: 'center', color:'#0B0617',
+                            }}>{st.done && <QIcon name="check" size={9} />}</span>
+                            <span style={{
+                              fontSize: 12,
+                              color: st.done ? 'var(--q-text-3)' : 'var(--q-text-1)',
+                              textDecoration: st.done ? 'line-through' : 'none',
+                            }}>{st.t}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ display:'flex', gap: 6, flexWrap:'wrap' }}>
+                        {!isComplete && <button className="q-btn q-btn-primary" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => completeMission(m.id)}><QIcon name="check" size={11}/> Mark complete</button>}
+                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`Continuing ${m.title}…`)}>Continue</button>}
+                        <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`${m.title} pinned to top`)}>Pin</button>
+                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast('Quark · breaking down sub-tasks')}><QIcon name="sparkle" size={11}/> Ask Quark</button>}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
 
         {/* level / stats */}
@@ -577,7 +704,7 @@ function ScreenOnboarding() {
           </>}
         </div>
 
-        <OrbVisual />
+        <OrbVisual step={step} connected={connected} />
       </div>
 
       {/* progress strip */}

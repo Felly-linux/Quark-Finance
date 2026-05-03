@@ -75,8 +75,8 @@ function ScreenDashboard() {
         <button className="q-btn" onClick={() => nav('copilot')}><QIcon name="sparkle" size={12}/> Ask Quark</button>
       </>,
     }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, height: '100%' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minHeight: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, minHeight: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             <QKpi label="Net worth" value="$172,480" delta="+4.8%" deltaLabel="vs last 30d" accent="violet"
               sparkline={<QSparkline points={nwPoints.slice(-12)} color="#C084FF" />} />

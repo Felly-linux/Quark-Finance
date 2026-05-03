@@ -244,65 +244,149 @@ window.QInteractiveInsights = QInteractiveInsights;
 // ─────────────────────────────────────────────────────────────
 // Settings, Wallets, Analytics screens
 // ─────────────────────────────────────────────────────────────
+// Currency formatter (used across screens via window.__qFmtCurrency)
+const CURRENCY_RATES = { USD: 1, COP: 4180, EUR: 0.92, MXN: 17.05 };
+const CURRENCY_LOCALE = { USD: 'en-US', COP: 'es-CO', EUR: 'de-DE', MXN: 'es-MX' };
+function fmtCurrency(usdAmount, currency = 'USD') {
+  const rate = CURRENCY_RATES[currency] || 1;
+  const value = usdAmount * rate;
+  const locale = CURRENCY_LOCALE[currency] || 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, { style:'currency', currency, maximumFractionDigits: currency === 'COP' ? 0 : 2 }).format(value);
+  } catch { return `${currency} ${value.toLocaleString()}`; }
+}
+window.fmtCurrency = fmtCurrency;
+
+const SETTINGS_I18N = {
+  en: { profile:'Profile', currency:'Currency', language:'Language', risk:'Risk profile',
+    security:'Vault & access', notif:'What Quark tells you', danger:'Irreversible',
+    bio:'Biometric unlock', tfa:'Two-factor auth', refresh:'Auto-refresh data', tele:'Anonymous telemetry',
+    unlock:'Unlock vault', save:'Save all', exportData:'Export all data', clearCache:'Clear cache', deleteAcc:'Delete account',
+    livePreview:'Live preview · with current settings', netWorth:'Net worth', monthFlow:'Monthly cash flow', burn:'Monthly burn',
+    langChanged:'UI language switched to English', currencyChanged:'Currency switched · all values reformatted' },
+  es: { profile:'Perfil', currency:'Divisa', language:'Idioma', risk:'Perfil de riesgo',
+    security:'Bóveda y acceso', notif:'Qué te dice Quark', danger:'Irreversible',
+    bio:'Desbloqueo biométrico', tfa:'Doble factor', refresh:'Auto-actualizar datos', tele:'Telemetría anónima',
+    unlock:'Abrir bóveda', save:'Guardar todo', exportData:'Exportar mis datos', clearCache:'Limpiar caché', deleteAcc:'Eliminar cuenta',
+    livePreview:'Vista previa en vivo · con tus ajustes', netWorth:'Patrimonio neto', monthFlow:'Flujo mensual', burn:'Gasto mensual',
+    langChanged:'Idioma cambiado a Español', currencyChanged:'Divisa cambiada · valores reformateados' },
+};
+
 function ScreenSettings() {
   const toast = useToast();
-  const [s, setS] = useState({
+  const [s, setS] = useState(() => ({
     notif: true, biometric: true, autoRefresh: true, telemetry: false,
-    twoFa: true, currency: 'USD', lang: 'en', risk: 'moderate',
-  });
-  const set = (k,v) => { setS(x => ({...x, [k]: v})); toast(`${k} updated`); };
+    twoFa: true,
+    currency: localStorage.getItem('quark.currency') || 'USD',
+    lang: localStorage.getItem('quark.lang') || 'en',
+    risk: 'moderate',
+  }));
+  const t = SETTINGS_I18N[s.lang] || SETTINGS_I18N.en;
+  const set = (k, v) => {
+    setS(x => ({ ...x, [k]: v }));
+    if (k === 'currency') {
+      localStorage.setItem('quark.currency', v);
+      window.dispatchEvent(new CustomEvent('quark-settings-changed', { detail:{ currency: v } }));
+      toast((SETTINGS_I18N[s.lang] || SETTINGS_I18N.en).currencyChanged);
+    } else if (k === 'lang') {
+      localStorage.setItem('quark.lang', v);
+      window.dispatchEvent(new CustomEvent('quark-settings-changed', { detail:{ lang: v } }));
+      toast((SETTINGS_I18N[v] || SETTINGS_I18N.en).langChanged);
+    } else {
+      toast(`${k} updated`);
+    }
+  };
+
+  // Sample numbers for live preview (always stored as USD baseline)
+  const previewSamples = [
+    { k: t.netWorth,   v: 172480 },
+    { k: t.monthFlow,  v: 3840 },
+    { k: t.burn,       v: 6290 },
+  ];
 
   return (
     <QShell active="settings" topbarProps={{
       breadcrumb: 'WORKSPACE / SETTINGS',
-      title: 'Settings',
-      subtitle: 'Workspace · privacy · API · vault',
-      actions: <button className="q-btn" onClick={() => toast('Saved · all changes synced', { tone:'ok' })}><QIcon name="check" size={12}/> Save all</button>,
+      title: s.lang === 'es' ? 'Configuración' : 'Settings',
+      subtitle: s.lang === 'es' ? 'Workspace · privacidad · API · bóveda' : 'Workspace · privacy · API · vault',
+      actions: <button className="q-btn" onClick={() => toast(s.lang==='es' ? 'Guardado · cambios sincronizados' : 'Saved · all changes synced', { tone:'ok' })}><QIcon name="check" size={12}/> {t.save}</button>,
     }}>
       <div className="q-scroll" style={{ height: '100%', overflow: 'auto', paddingRight: 4 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div className="q-card q-card-elev" style={{ padding: 18 }}>
-            <QSectionHead eyebrow="ACCOUNT" title="Profile" />
+            <QSectionHead eyebrow="ACCOUNT" title={t.profile} />
             <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
               <div style={{ width:54, height:54, borderRadius:'50%', background:'linear-gradient(135deg,#9D4DFF,#D946EF)', display:'grid', placeItems:'center', fontSize:18, fontWeight:600, boxShadow:'0 0 0 1px rgba(192,132,252,0.5), 0 0 16px rgba(157,77,255,0.5)' }}>MR</div>
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:14, fontWeight:500 }}>Mateo Restrepo</div>
                 <div className="q-mono" style={{ fontSize:11, color:'var(--q-text-3)' }}>mateo@quark.fi · plan ORBIT</div>
               </div>
-              <button className="q-btn q-btn-ghost" onClick={() => toast('Avatar updated')}>Edit</button>
+              <button className="q-btn q-btn-ghost" onClick={() => toast(s.lang==='es'?'Avatar actualizado':'Avatar updated')}>{s.lang==='es'?'Editar':'Edit'}</button>
             </div>
-            <Row k="Currency" v={
+            <Row k={t.currency} v={
               <Pills value={s.currency} onChange={v => set('currency', v)} options={['USD','COP','EUR','MXN']} />
             } />
-            <Row k="Language" v={
+            <Row k={t.language} v={
               <Pills value={s.lang} onChange={v => set('lang', v)} options={['en','es']} />
             } />
-            <Row k="Risk profile" v={
+            <Row k={t.risk} v={
               <Pills value={s.risk} onChange={v => set('risk', v)} options={['conservative','moderate','aggressive']} />
             } />
           </div>
 
-          <div className="q-card q-card-elev" style={{ padding: 18 }}>
-            <QSectionHead eyebrow="SECURITY" title="Vault & access" />
-            <Toggle k="Biometric unlock" v={s.biometric} onChange={v=>set('biometric',v)} sub="Face ID · Touch ID" />
-            <Toggle k="Two-factor auth"  v={s.twoFa}     onChange={v=>set('twoFa',v)}     sub="Authenticator · backup codes" />
-            <Toggle k="Auto-refresh data" v={s.autoRefresh} onChange={v=>set('autoRefresh',v)} sub="Pull from Plaid every 4h" />
-            <Toggle k="Anonymous telemetry" v={s.telemetry} onChange={v=>set('telemetry',v)} sub="Help us improve · zero PII" />
-            <button className="q-btn" style={{ marginTop:10 }} onClick={() => toast('Vault unlocked · 142ms')}><QIcon name="lock" size={12}/> Unlock vault</button>
+          {/* Live preview — shows currency formatting + language working */}
+          <div className="q-card q-card-elev" style={{ padding: 18, position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, borderRadius:'50%',
+              background: 'radial-gradient(circle, rgba(109,243,255,0.25), transparent 70%)' }} />
+            <QSectionHead eyebrow="LIVE PREVIEW" title={t.livePreview} ai />
+            <div className="q-stack-sm">
+              {previewSamples.map((p, i) => (
+                <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px', background:'rgba(7,2,15,0.4)', borderRadius:10, border:'1px solid var(--q-stroke-1)' }}>
+                  <span style={{ fontSize: 12, color: 'var(--q-text-2)' }}>{p.k}</span>
+                  <span className="q-mono q-num" style={{ fontSize: 14, fontWeight: 500, color: 'var(--q-text-1)' }}>{fmtCurrency(p.v, s.currency)}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 6, padding:'8px 12px', background:'rgba(157,77,255,0.08)', borderRadius:8, border:'1px dashed rgba(157,77,255,0.3)' }}>
+                <div className="q-mono" style={{ fontSize: 9.5, color: 'var(--q-violet-300)', letterSpacing:'0.16em', marginBottom: 4 }}>NOTE</div>
+                <div style={{ fontSize: 11, color: 'var(--q-text-2)', lineHeight: 1.45 }}>
+                  {s.lang==='es'
+                    ? `Divisa: ${s.currency} · idioma: Español. Los cambios se persisten y aplican al recargar.`
+                    : `Currency: ${s.currency} · language: English. Changes persist and propagate on reload.`}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
+        <div className="q-card q-card-elev" style={{ padding: 18, marginBottom:14 }}>
+          <QSectionHead eyebrow="SECURITY" title={t.security} />
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 8, marginBottom: 4 }}>
+            <Toggle k={t.bio} v={s.biometric} onChange={v=>set('biometric',v)} sub="Face ID · Touch ID" />
+            <Toggle k={t.tfa}  v={s.twoFa}     onChange={v=>set('twoFa',v)}     sub="Authenticator · backup codes" />
+            <Toggle k={t.refresh} v={s.autoRefresh} onChange={v=>set('autoRefresh',v)} sub="Plaid · 4h" />
+            <Toggle k={t.tele} v={s.telemetry} onChange={v=>set('telemetry',v)} sub="Zero PII" />
+          </div>
+          <button className="q-btn" style={{ marginTop:10 }} onClick={() => toast(s.lang==='es'?'Bóveda abierta · 142ms':'Vault unlocked · 142ms')}><QIcon name="lock" size={12}/> {t.unlock}</button>
+        </div>
+
         <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
-          <QSectionHead eyebrow="NOTIFICATIONS" title="What Quark tells you" />
+          <QSectionHead eyebrow="NOTIFICATIONS" title={t.notif} />
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
-            {[
+            {(s.lang === 'es' ? [
+              ['Síntesis diaria', 'Cada noche · 9pm'],
+              ['Alertas de riesgo', 'Tiempo real · solo alto'],
+              ['Hitos de meta', 'Cada 10%'],
+              ['Anomalías de gasto', 'Cuando > 2σ'],
+              ['Ventanas de refi', 'Al abrir'],
+              ['Resumen semanal', 'Domingos · narrativa'],
+            ] : [
               ['Daily synthesis', 'Each evening · 9pm'],
               ['Risk signals', 'Real-time · high only'],
               ['Goal milestones', 'On every 10% hit'],
               ['Spend anomalies', 'When > 2σ'],
               ['Refi windows', 'When opportunity opens'],
               ['Weekly digest', 'Sundays · narrative'],
-            ].map(([k,v],i)=>(
+            ]).map(([k,v],i)=>(
               <div key={i} style={{ padding:12, background:'rgba(7,2,15,0.4)', borderRadius:10, border:'1px solid var(--q-stroke-1)', display:'flex', alignItems:'center', gap:10 }}>
                 <Switch initial={i!==4} />
                 <div style={{ flex:1, minWidth:0 }}>
@@ -315,12 +399,12 @@ function ScreenSettings() {
         </div>
 
         <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
-          <QSectionHead eyebrow="DANGER ZONE" title="Irreversible" />
+          <QSectionHead eyebrow={s.lang==='es'?'ZONA DE PELIGRO':'DANGER ZONE'} title={t.danger} />
           <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-            <button className="q-btn q-btn-ghost" onClick={()=>toast('Export started · email when ready')}>Export all data</button>
-            <button className="q-btn q-btn-ghost" onClick={()=>toast('Cache cleared · 142ms')}>Clear cache</button>
+            <button className="q-btn q-btn-ghost" onClick={()=>toast(s.lang==='es'?'Exportación iniciada · email al terminar':'Export started · email when ready')}>{t.exportData}</button>
+            <button className="q-btn q-btn-ghost" onClick={()=>toast(s.lang==='es'?'Caché limpiada · 142ms':'Cache cleared · 142ms')}>{t.clearCache}</button>
             <button className="q-btn q-btn-ghost" style={{ borderColor:'rgba(255,90,110,0.3)', color:'#FF5A6E' }}
-              onClick={()=>toast('Account deletion requires email confirmation')}>Delete account</button>
+              onClick={()=>toast(s.lang==='es'?'Eliminar cuenta requiere confirmación por email':'Account deletion requires email confirmation')}>{t.deleteAcc}</button>
           </div>
         </div>
       </div>
@@ -472,21 +556,70 @@ function ScreenAnalytics() {
   const [period, setPeriod] = useState('30d');
   const [view, setView] = useState('spend');
 
-  const cats = [
-    { name:'Food',          v: 487, pct:.21, c:'#FF7AE6' },
-    { name:'Rent',          v:1850, pct:.32, c:'#9D4DFF' },
-    { name:'Transport',     v: 280, pct:.09, c:'#6DF3FF' },
-    { name:'Subscriptions', v: 248, pct:.08, c:'#FFB547' },
-    { name:'Health',        v: 180, pct:.07, c:'#4ADE9B' },
-    { name:'Entertainment', v: 320, pct:.10, c:'#D946EF' },
-    { name:'Other',         v: 380, pct:.13, c:'#C084FF' },
-  ];
+  // Period-aware data (different totals + category mix per window)
+  const PERIOD_DATA = {
+    '7d':  { total: 945,   txn: 42,   avg: 135, top:'Food', topPct: 31, factor: 0.25, deltaPct:'+14%', avgDelta:'+5%', txnDelta:'+8',
+      cats:[
+        { name:'Food', v:295, pct:.31, c:'#FF7AE6' },
+        { name:'Rent', v:0,   pct:0,   c:'#9D4DFF' },
+        { name:'Transport', v:84, pct:.09, c:'#6DF3FF' },
+        { name:'Subscriptions', v:62, pct:.07, c:'#FFB547' },
+        { name:'Health', v:42, pct:.04, c:'#4ADE9B' },
+        { name:'Entertainment', v:128, pct:.14, c:'#D946EF' },
+        { name:'Other', v:334, pct:.35, c:'#C084FF' },
+      ] },
+    '30d': { total: 3745,  txn: 184,  avg: 124, top:'Rent', topPct: 49, factor: 1, deltaPct:'+8.2%', avgDelta:'-2.1%', txnDelta:'+12',
+      cats:[
+        { name:'Food', v:487, pct:.13, c:'#FF7AE6' },
+        { name:'Rent', v:1850, pct:.49, c:'#9D4DFF' },
+        { name:'Transport', v:280, pct:.07, c:'#6DF3FF' },
+        { name:'Subscriptions', v:248, pct:.07, c:'#FFB547' },
+        { name:'Health', v:180, pct:.05, c:'#4ADE9B' },
+        { name:'Entertainment', v:320, pct:.09, c:'#D946EF' },
+        { name:'Other', v:380, pct:.10, c:'#C084FF' },
+      ] },
+    '90d': { total: 11420, txn: 562,  avg: 127, top:'Rent', topPct: 49, factor: 3, deltaPct:'+11.6%', avgDelta:'+0.8%', txnDelta:'+34',
+      cats:[
+        { name:'Food', v:1480, pct:.13, c:'#FF7AE6' },
+        { name:'Rent', v:5550, pct:.49, c:'#9D4DFF' },
+        { name:'Transport', v:842, pct:.07, c:'#6DF3FF' },
+        { name:'Subscriptions', v:744, pct:.07, c:'#FFB547' },
+        { name:'Health', v:540, pct:.05, c:'#4ADE9B' },
+        { name:'Entertainment', v:1098, pct:.10, c:'#D946EF' },
+        { name:'Other', v:1166, pct:.10, c:'#C084FF' },
+      ] },
+    '1y':  { total: 42180, txn: 2240, avg: 116, top:'Rent', topPct: 53, factor: 12, deltaPct:'+18.4%', avgDelta:'-4.2%', txnDelta:'+340',
+      cats:[
+        { name:'Food', v:5648, pct:.13, c:'#FF7AE6' },
+        { name:'Rent', v:22360, pct:.53, c:'#9D4DFF' },
+        { name:'Transport', v:3208, pct:.08, c:'#6DF3FF' },
+        { name:'Subscriptions', v:2840, pct:.07, c:'#FFB547' },
+        { name:'Health', v:2160, pct:.05, c:'#4ADE9B' },
+        { name:'Entertainment', v:3120, pct:.07, c:'#D946EF' },
+        { name:'Other', v:2844, pct:.07, c:'#C084FF' },
+      ] },
+    'ALL': { total: 102640,txn: 4182, avg: 122, top:'Rent', topPct: 51, factor: 28, deltaPct:'+47%', avgDelta:'avg', txnDelta:'all-time',
+      cats:[
+        { name:'Food', v:13280, pct:.13, c:'#FF7AE6' },
+        { name:'Rent', v:52460, pct:.51, c:'#9D4DFF' },
+        { name:'Transport', v:8240, pct:.08, c:'#6DF3FF' },
+        { name:'Subscriptions', v:6800, pct:.07, c:'#FFB547' },
+        { name:'Health', v:5180, pct:.05, c:'#4ADE9B' },
+        { name:'Entertainment', v:9420, pct:.09, c:'#D946EF' },
+        { name:'Other', v:7260, pct:.07, c:'#C084FF' },
+      ] },
+  };
+  const pd = PERIOD_DATA[period];
+  const cats = pd.cats;
+  const periodLabel = { '7d':'last 7 days', '30d':'last 30 days', '90d':'last 90 days', '1y':'last year', 'ALL':'all time' }[period];
+  const subTotal = pd.total.toLocaleString();
+  const subtitle = `${pd.txn.toLocaleString()} transactions · 12 banks · ${periodLabel} window`;
 
   return (
     <QShell active="analytics" topbarProps={{
       breadcrumb: 'WORKSPACE / ANALYTICS',
       title: 'Deep analytics',
-      subtitle: '4,182 transactions · 12 banks · 90d window',
+      subtitle: subtitle,
       actions: <>
         <button className="q-btn q-btn-ghost" onClick={()=>toast('Export CSV ready')}>Export</button>
         <button className="q-btn" onClick={()=>toast('Quark synthesizing patterns…')}><QIcon name="sparkle" size={12}/> Find patterns</button>
@@ -512,10 +645,10 @@ function ScreenAnalytics() {
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:12, marginBottom:14 }}>
-          <QKpi label="Total spend" value="$3,745" delta="+8.2%" deltaLabel="vs prev" accent="pink" sparkline={<QSparkline points={[20,22,24,26,25,28,30,29,32,31,34,37]} color="#FF7AE6" />} />
-          <QKpi label="Avg / day"   value="$124"   delta="-2.1%" deltaLabel="↓ trending" accent="violet" sparkline={<QSparkline points={[14,13,15,14,12,13,11,12,11,10,12,11]} color="#C084FF" />} />
-          <QKpi label="Transactions" value="184" delta="+12" deltaLabel="vs prev" accent="cyan" sparkline={<QSparkline points={[10,12,14,11,13,16,15,18,17,19,20,18]} color="#6DF3FF" />} />
-          <QKpi label="Top category" value="Rent" delta="49%" deltaLabel="of total" accent="emerald" />
+          <QKpi label={`Total spend · ${period}`} value={`$${subTotal}`} delta={pd.deltaPct} deltaLabel="vs prev" accent="pink" sparkline={<QSparkline points={[20,22,24,26,25,28,30,29,32,31,34,37].map(x => x * pd.factor / 1.5)} color="#FF7AE6" />} />
+          <QKpi label="Avg / day"   value={`$${pd.avg}`}   delta={pd.avgDelta} deltaLabel={pd.avgDelta.startsWith('-') ? '↓ trending' : '↑ trending'} accent="violet" sparkline={<QSparkline points={[14,13,15,14,12,13,11,12,11,10,12,11]} color="#C084FF" />} />
+          <QKpi label="Transactions" value={pd.txn.toLocaleString()} delta={pd.txnDelta} deltaLabel={period==='ALL'?'all-time':'vs prev'} accent="cyan" sparkline={<QSparkline points={[10,12,14,11,13,16,15,18,17,19,20,18].map(x => x * Math.min(pd.factor, 4))} color="#6DF3FF" />} />
+          <QKpi label="Top category" value={pd.top} delta={pd.topPct + '%'} deltaLabel="of total" accent="emerald" />
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'1.5fr 1fr', gap:14, marginBottom:14 }}>
@@ -544,15 +677,15 @@ function ScreenAnalytics() {
           </div>
           <div className="q-card q-card-elev" style={{ padding:18, display:'flex', flexDirection:'column', alignItems:'center' }}>
             <QSectionHead eyebrow="DISTRIBUTION" title="Where it goes" />
-            <QDonut size={180} centerLabel="MONTH" centerValue="$3.7k" items={cats.map(c=>({ value:c.v, color:c.c }))} />
+            <QDonut size={180} centerLabel={period.toUpperCase()} centerValue={pd.total > 9999 ? `$${(pd.total/1000).toFixed(1)}k` : `$${pd.total.toLocaleString()}`} items={cats.filter(c=>c.v>0).map(c=>({ value:c.v, color:c.c }))} />
             <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:14, textAlign:'center' }}>
-              7 categories · biggest: Rent (49%)
+              {cats.filter(c=>c.v>0).length} categories · biggest: {pd.top} ({pd.topPct}%)
             </div>
           </div>
         </div>
 
         <div className="q-card q-card-elev" style={{ padding:18, marginBottom:14 }}>
-          <QSectionHead eyebrow="TOP MERCHANTS · 30D" title="Where you actually spend" ai />
+          <QSectionHead eyebrow={`TOP MERCHANTS · ${period.toUpperCase()}`} title="Where you actually spend" ai />
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10 }}>
             {[
               ['Sushi Norte', 484, 4, '#FF7AE6'],
