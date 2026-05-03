@@ -274,24 +274,26 @@ const SETTINGS_I18N = {
 
 function ScreenSettings() {
   const toast = useToast();
+  const langCtx = (typeof window.useT === 'function') ? window.useT() : { lang: 'en', setLang: ()=>{} };
   const [s, setS] = useState(() => ({
     notif: true, biometric: true, autoRefresh: true, telemetry: false,
     twoFa: true,
     currency: localStorage.getItem('quark.currency') || 'USD',
-    lang: localStorage.getItem('quark.lang') || 'en',
     risk: 'moderate',
   }));
-  const t = SETTINGS_I18N[s.lang] || SETTINGS_I18N.en;
+  const lang = langCtx.lang;
+  const t = SETTINGS_I18N[lang] || SETTINGS_I18N.en;
   const set = (k, v) => {
+    if (k === 'lang') {
+      langCtx.setLang(v);
+      toast((SETTINGS_I18N[v] || SETTINGS_I18N.en).langChanged);
+      return;
+    }
     setS(x => ({ ...x, [k]: v }));
     if (k === 'currency') {
       localStorage.setItem('quark.currency', v);
       window.dispatchEvent(new CustomEvent('quark-settings-changed', { detail:{ currency: v } }));
-      toast((SETTINGS_I18N[s.lang] || SETTINGS_I18N.en).currencyChanged);
-    } else if (k === 'lang') {
-      localStorage.setItem('quark.lang', v);
-      window.dispatchEvent(new CustomEvent('quark-settings-changed', { detail:{ lang: v } }));
-      toast((SETTINGS_I18N[v] || SETTINGS_I18N.en).langChanged);
+      toast((SETTINGS_I18N[lang] || SETTINGS_I18N.en).currencyChanged);
     } else {
       toast(`${k} updated`);
     }
@@ -307,9 +309,9 @@ function ScreenSettings() {
   return (
     <QShell active="settings" topbarProps={{
       breadcrumb: 'WORKSPACE / SETTINGS',
-      title: s.lang === 'es' ? 'Configuración' : 'Settings',
-      subtitle: s.lang === 'es' ? 'Workspace · privacidad · API · bóveda' : 'Workspace · privacy · API · vault',
-      actions: <button className="q-btn" onClick={() => toast(s.lang==='es' ? 'Guardado · cambios sincronizados' : 'Saved · all changes synced', { tone:'ok' })}><QIcon name="check" size={12}/> {t.save}</button>,
+      title: lang === 'es' ? 'Configuración' : 'Settings',
+      subtitle: lang === 'es' ? 'Workspace · privacidad · API · bóveda' : 'Workspace · privacy · API · vault',
+      actions: <button className="q-btn" onClick={() => toast(lang==='es' ? 'Guardado · cambios sincronizados' : 'Saved · all changes synced', { tone:'ok' })}><QIcon name="check" size={12}/> {t.save}</button>,
     }}>
       <div className="q-scroll" style={{ height: '100%', overflow: 'auto', paddingRight: 4 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
@@ -321,13 +323,13 @@ function ScreenSettings() {
                 <div style={{ fontSize:14, fontWeight:500 }}>Mateo Restrepo</div>
                 <div className="q-mono" style={{ fontSize:11, color:'var(--q-text-3)' }}>mateo@quark.fi · plan ORBIT</div>
               </div>
-              <button className="q-btn q-btn-ghost" onClick={() => toast(s.lang==='es'?'Avatar actualizado':'Avatar updated')}>{s.lang==='es'?'Editar':'Edit'}</button>
+              <button className="q-btn q-btn-ghost" onClick={() => toast(lang==='es'?'Avatar actualizado':'Avatar updated')}>{lang==='es'?'Editar':'Edit'}</button>
             </div>
             <Row k={t.currency} v={
               <Pills value={s.currency} onChange={v => set('currency', v)} options={['USD','COP','EUR','MXN']} />
             } />
             <Row k={t.language} v={
-              <Pills value={s.lang} onChange={v => set('lang', v)} options={['en','es']} />
+              <Pills value={lang} onChange={v => set('lang', v)} options={['en','es']} />
             } />
             <Row k={t.risk} v={
               <Pills value={s.risk} onChange={v => set('risk', v)} options={['conservative','moderate','aggressive']} />
@@ -349,7 +351,7 @@ function ScreenSettings() {
               <div style={{ marginTop: 6, padding:'8px 12px', background:'rgba(157,77,255,0.08)', borderRadius:8, border:'1px dashed rgba(157,77,255,0.3)' }}>
                 <div className="q-mono" style={{ fontSize: 9.5, color: 'var(--q-violet-300)', letterSpacing:'0.16em', marginBottom: 4 }}>NOTE</div>
                 <div style={{ fontSize: 11, color: 'var(--q-text-2)', lineHeight: 1.45 }}>
-                  {s.lang==='es'
+                  {lang==='es'
                     ? `Divisa: ${s.currency} · idioma: Español. Los cambios se persisten y aplican al recargar.`
                     : `Currency: ${s.currency} · language: English. Changes persist and propagate on reload.`}
                 </div>
@@ -366,13 +368,13 @@ function ScreenSettings() {
             <Toggle k={t.refresh} v={s.autoRefresh} onChange={v=>set('autoRefresh',v)} sub="Plaid · 4h" />
             <Toggle k={t.tele} v={s.telemetry} onChange={v=>set('telemetry',v)} sub="Zero PII" />
           </div>
-          <button className="q-btn" style={{ marginTop:10 }} onClick={() => toast(s.lang==='es'?'Bóveda abierta · 142ms':'Vault unlocked · 142ms')}><QIcon name="lock" size={12}/> {t.unlock}</button>
+          <button className="q-btn" style={{ marginTop:10 }} onClick={() => toast(lang==='es'?'Bóveda abierta · 142ms':'Vault unlocked · 142ms')}><QIcon name="lock" size={12}/> {t.unlock}</button>
         </div>
 
         <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
           <QSectionHead eyebrow="NOTIFICATIONS" title={t.notif} />
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
-            {(s.lang === 'es' ? [
+            {(lang === 'es' ? [
               ['Síntesis diaria', 'Cada noche · 9pm'],
               ['Alertas de riesgo', 'Tiempo real · solo alto'],
               ['Hitos de meta', 'Cada 10%'],
@@ -399,12 +401,12 @@ function ScreenSettings() {
         </div>
 
         <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
-          <QSectionHead eyebrow={s.lang==='es'?'ZONA DE PELIGRO':'DANGER ZONE'} title={t.danger} />
+          <QSectionHead eyebrow={lang==='es'?'ZONA DE PELIGRO':'DANGER ZONE'} title={t.danger} />
           <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-            <button className="q-btn q-btn-ghost" onClick={()=>toast(s.lang==='es'?'Exportación iniciada · email al terminar':'Export started · email when ready')}>{t.exportData}</button>
-            <button className="q-btn q-btn-ghost" onClick={()=>toast(s.lang==='es'?'Caché limpiada · 142ms':'Cache cleared · 142ms')}>{t.clearCache}</button>
+            <button className="q-btn q-btn-ghost" onClick={()=>toast(lang==='es'?'Exportación iniciada · email al terminar':'Export started · email when ready')}>{t.exportData}</button>
+            <button className="q-btn q-btn-ghost" onClick={()=>toast(lang==='es'?'Caché limpiada · 142ms':'Cache cleared · 142ms')}>{t.clearCache}</button>
             <button className="q-btn q-btn-ghost" style={{ borderColor:'rgba(255,90,110,0.3)', color:'#FF5A6E' }}
-              onClick={()=>toast(s.lang==='es'?'Eliminar cuenta requiere confirmación por email':'Account deletion requires email confirmation')}>{t.deleteAcc}</button>
+              onClick={()=>toast(lang==='es'?'Eliminar cuenta requiere confirmación por email':'Account deletion requires email confirmation')}>{t.deleteAcc}</button>
           </div>
         </div>
       </div>
@@ -461,6 +463,7 @@ function Toggle({ k, v, sub, onChange }) {
 }
 
 function ScreenWallets() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = useToast();
   const [walletFilter, setWalletFilter] = useState('ALL');
   const allWallets = [
@@ -478,39 +481,39 @@ function ScreenWallets() {
 
   return (
     <QShell active="wallets" topbarProps={{
-      breadcrumb: 'WORKSPACE / WALLETS',
-      title: 'All accounts',
-      subtitle: `${wallets.length} accounts · synced ${new Date().toLocaleTimeString().slice(0,5)}`,
+      breadcrumb: tr('WORKSPACE / WALLETS'),
+      title: tr('All accounts'),
+      subtitle: `${wallets.length} ${tr('accounts')} · ${tr('synced')} ${new Date().toLocaleTimeString().slice(0,5)}`,
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Refreshing all · Plaid')}><QIcon name="orbit" size={12}/> Refresh</button>
-        <button className="q-btn" onClick={()=>toast('Add account · choose provider')}><QIcon name="plus" size={12}/> Connect</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Refreshing all · Plaid'))}><QIcon name="orbit" size={12}/> {tr('Refresh')}</button>
+        <button className="q-btn" onClick={()=>toast(tr('Add account · choose provider'))}><QIcon name="plus" size={12}/> {tr('Connect')}</button>
       </>,
     }}>
       <div className="q-scroll" style={{ height:'100%', overflow:'auto', paddingRight:4 }}>
         <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:12, marginBottom:14 }}>
           <div className="q-card q-card-elev" style={{ padding:18, position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', top:-40, right:-40, width:200, height:200, borderRadius:'50%', background:'radial-gradient(circle,rgba(157,77,255,0.4),transparent 70%)' }} />
-            <div className="q-eyebrow q-eyebrow-violet">TOTAL · USD</div>
+            <div className="q-eyebrow q-eyebrow-violet">{tr('TOTAL')} · USD</div>
             <div className="q-num" style={{ fontSize:36, fontWeight:600, letterSpacing:'-0.03em', marginTop:6,
               background:'linear-gradient(180deg,#FFFFFF,#C084FF)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
               ${total.toLocaleString()}
             </div>
-            <div style={{ fontSize:11, color:'var(--q-text-3)', marginTop:4 }}>across {wallets.length} accounts · {wallets.filter(w=>w.bal>0).length} positive</div>
+            <div style={{ fontSize:11, color:'var(--q-text-3)', marginTop:4 }}>{tr('across')} {wallets.length} {tr('accounts')} · {wallets.filter(w=>w.bal>0).length} {tr('positive')}</div>
           </div>
           <div className="q-card q-card-elev" style={{ padding:14 }}>
-            <div className="q-eyebrow">LIQUID</div>
+            <div className="q-eyebrow">{tr('LIQUID')}</div>
             <div className="q-num" style={{ fontSize:22, fontWeight:600, color:'var(--q-accent-cyan)', marginTop:4 }}>$41,160</div>
-            <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:2 }}>checking + HYSA</div>
+            <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:2 }}>{tr('checking')} + HYSA</div>
           </div>
           <div className="q-card q-card-elev" style={{ padding:14 }}>
-            <div className="q-eyebrow">DEBT</div>
+            <div className="q-eyebrow">{tr('DEBT')}</div>
             <div className="q-num" style={{ fontSize:22, fontWeight:600, color:'var(--q-accent-coral)', marginTop:4 }}>-$1,842</div>
-            <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:2 }}>1 card · paid in 18d</div>
+            <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:2 }}>1 {tr('card')} · {tr('paid in')} 18d</div>
           </div>
         </div>
 
         <div className="q-card q-card-elev" style={{ padding: 16 }}>
-          <QSectionHead eyebrow="ACCOUNTS" title="All wallets" action={
+          <QSectionHead eyebrow={tr('ACCOUNTS')} title={tr('All wallets')} action={
             <div style={{ display:'flex', gap:4 }}>
               {['ALL','BANK','CREDIT','INVEST','CRYPTO'].map((t)=>(
                 <button key={t} onClick={()=>setWalletFilter(t)} className="q-btn q-btn-ghost" style={{ padding:'3px 9px', fontSize:10,
@@ -552,6 +555,7 @@ function ScreenWallets() {
 }
 
 function ScreenAnalytics() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = useToast();
   const [period, setPeriod] = useState('30d');
   const [view, setView] = useState('spend');
@@ -617,12 +621,12 @@ function ScreenAnalytics() {
 
   return (
     <QShell active="analytics" topbarProps={{
-      breadcrumb: 'WORKSPACE / ANALYTICS',
-      title: 'Deep analytics',
+      breadcrumb: tr('WORKSPACE / ANALYTICS'),
+      title: tr('Deep analytics'),
       subtitle: subtitle,
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Export CSV ready')}>Export</button>
-        <button className="q-btn" onClick={()=>toast('Quark synthesizing patterns…')}><QIcon name="sparkle" size={12}/> Find patterns</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Export CSV ready'))}>{tr('Export')}</button>
+        <button className="q-btn" onClick={()=>toast(tr('Quark synthesizing patterns…'))}><QIcon name="sparkle" size={12}/> {tr('Find patterns')}</button>
       </>,
     }}>
       <div className="q-scroll" style={{ height:'100%', overflow:'auto', paddingRight:4 }}>
@@ -635,7 +639,7 @@ function ScreenAnalytics() {
           ))}
           <div style={{ flex:1 }} />
           <div style={{ display:'flex', gap:4, background:'rgba(7,2,15,0.5)', padding:3, borderRadius:8, border:'1px solid var(--q-stroke-1)' }}>
-            {[['spend','Spending'],['income','Income'],['merchants','Merchants']].map(([k,l])=>(
+            {[['spend',tr('Spending')],['income',tr('Income')],['merchants',tr('Merchants')]].map(([k,l])=>(
               <button key={k} onClick={()=>setView(k)} className="q-btn q-btn-ghost"
                 style={{ padding:'4px 10px', fontSize:11, border:'none',
                   background:view===k?'rgba(157,77,255,0.22)':'transparent',
@@ -645,15 +649,15 @@ function ScreenAnalytics() {
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:12, marginBottom:14 }}>
-          <QKpi label={`Total spend · ${period}`} value={`$${subTotal}`} delta={pd.deltaPct} deltaLabel="vs prev" accent="pink" sparkline={<QSparkline points={[20,22,24,26,25,28,30,29,32,31,34,37].map(x => x * pd.factor / 1.5)} color="#FF7AE6" />} />
-          <QKpi label="Avg / day"   value={`$${pd.avg}`}   delta={pd.avgDelta} deltaLabel={pd.avgDelta.startsWith('-') ? '↓ trending' : '↑ trending'} accent="violet" sparkline={<QSparkline points={[14,13,15,14,12,13,11,12,11,10,12,11]} color="#C084FF" />} />
-          <QKpi label="Transactions" value={pd.txn.toLocaleString()} delta={pd.txnDelta} deltaLabel={period==='ALL'?'all-time':'vs prev'} accent="cyan" sparkline={<QSparkline points={[10,12,14,11,13,16,15,18,17,19,20,18].map(x => x * Math.min(pd.factor, 4))} color="#6DF3FF" />} />
-          <QKpi label="Top category" value={pd.top} delta={pd.topPct + '%'} deltaLabel="of total" accent="emerald" />
+          <QKpi label={`${tr('Total spend')} · ${period}`} value={`$${subTotal}`} delta={pd.deltaPct} deltaLabel={tr('vs prev')} accent="pink" sparkline={<QSparkline points={[20,22,24,26,25,28,30,29,32,31,34,37].map(x => x * pd.factor / 1.5)} color="#FF7AE6" />} />
+          <QKpi label={`${tr('Avg')} / ${tr('day')}`}   value={`$${pd.avg}`}   delta={pd.avgDelta} deltaLabel={pd.avgDelta.startsWith('-') ? '↓ ' + tr('trending') : '↑ ' + tr('trending')} accent="violet" sparkline={<QSparkline points={[14,13,15,14,12,13,11,12,11,10,12,11]} color="#C084FF" />} />
+          <QKpi label={tr('Transactions')} value={pd.txn.toLocaleString()} delta={pd.txnDelta} deltaLabel={period==='ALL'?tr('all-time'):tr('vs prev')} accent="cyan" sparkline={<QSparkline points={[10,12,14,11,13,16,15,18,17,19,20,18].map(x => x * Math.min(pd.factor, 4))} color="#6DF3FF" />} />
+          <QKpi label={tr('Top category')} value={pd.top} delta={pd.topPct + '%'} deltaLabel={tr('of total')} accent="emerald" />
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'1.5fr 1fr', gap:14, marginBottom:14 }}>
           <div className="q-card q-card-elev" style={{ padding:18 }}>
-            <QSectionHead eyebrow="BREAKDOWN" title="By category" ai />
+            <QSectionHead eyebrow={tr('BREAKDOWN')} title={tr('By category')} ai />
             <div className="q-stack-sm">
               {cats.map(c => (
                 <button key={c.name} onClick={()=>toast(`Drill into ${c.name} · ${c.v} txns`)} style={{
@@ -676,16 +680,16 @@ function ScreenAnalytics() {
             </div>
           </div>
           <div className="q-card q-card-elev" style={{ padding:18, display:'flex', flexDirection:'column', alignItems:'center' }}>
-            <QSectionHead eyebrow="DISTRIBUTION" title="Where it goes" />
+            <QSectionHead eyebrow={tr('DISTRIBUTION')} title={tr('Where it goes')} />
             <QDonut size={180} centerLabel={period.toUpperCase()} centerValue={pd.total > 9999 ? `$${(pd.total/1000).toFixed(1)}k` : `$${pd.total.toLocaleString()}`} items={cats.filter(c=>c.v>0).map(c=>({ value:c.v, color:c.c }))} />
             <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)', marginTop:14, textAlign:'center' }}>
-              {cats.filter(c=>c.v>0).length} categories · biggest: {pd.top} ({pd.topPct}%)
+              {cats.filter(c=>c.v>0).length} {tr('categories')} · {tr('biggest')}: {pd.top} ({pd.topPct}%)
             </div>
           </div>
         </div>
 
         <div className="q-card q-card-elev" style={{ padding:18, marginBottom:14 }}>
-          <QSectionHead eyebrow={`TOP MERCHANTS · ${period.toUpperCase()}`} title="Where you actually spend" ai />
+          <QSectionHead eyebrow={`${tr('TOP MERCHANTS')} · ${period.toUpperCase()}`} title={tr('Where you actually spend')} ai />
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10 }}>
             {[
               ['Sushi Norte', 484, 4, '#FF7AE6'],
@@ -703,7 +707,7 @@ function ScreenAnalytics() {
                   <span style={{ fontSize:12, color:'var(--q-text-1)', fontWeight:500 }}>{m}</span>
                 </div>
                 <div className="q-num" style={{ fontSize:18, fontWeight:600, color:c }}>${v}</div>
-                <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)' }}>{n} txns · 30d</div>
+                <div className="q-mono" style={{ fontSize:10, color:'var(--q-text-3)' }}>{n} {tr('txns')} · 30d</div>
               </button>
             ))}
           </div>

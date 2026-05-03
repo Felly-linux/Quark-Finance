@@ -5,6 +5,7 @@
 // 3. QUANTUM INSIGHTS
 // ─────────────────────────────────────────────────────────────
 function ScreenInsights() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [selected, setSelected] = React.useState(null);
   const [filter, setFilter] = React.useState('ALL');
   React.useEffect(() => { window.__qSelectInsight = setSelected; return () => { window.__qSelectInsight = null; }; }, []);
@@ -30,8 +31,8 @@ function ScreenInsights() {
       title: 'Hidden correlations',
       subtitle: '47 nodes · 184 edges · drag any sphere · tap to manage',
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Window: 90 days')}><QIcon name="orbit" size={12}/> 90d window</button>
-        <button className="q-btn" onClick={()=>toast('Re-synthesizing graph…')}><QIcon name="sparkle" size={12}/> Re-synthesize</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Window: 90 days'))}><QIcon name="orbit" size={12}/> {tr('90d window')}</button>
+        <button className="q-btn" onClick={()=>toast(tr('Re-synthesizing graph…'))}><QIcon name="sparkle" size={12}/> {tr('Re-synthesize')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, height: '100%' }}>
@@ -41,7 +42,7 @@ function ScreenInsights() {
               {['ALL','INCOME','SPEND','RISK','GOALS'].map((t)=>(
                 <button key={t} onClick={()=>setFilter(t)} className="q-btn q-btn-ghost" style={{ padding:'3px 9px', fontSize:10,
                   background: filter===t?'rgba(157,77,255,0.18)':'transparent',
-                  color: filter===t?'var(--q-violet-300)':'var(--q-text-3)' }}>{t}</button>
+                  color: filter===t?'var(--q-violet-300)':'var(--q-text-3)' }}>{tr(t)}</button>
               ))}
             </div>} />
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
@@ -57,7 +58,7 @@ function ScreenInsights() {
               ['Asset','#9D4DFF'],['AI','#FFFFFF'],
             ].map(([l,c])=>(
               <span key={l} style={{ display:'flex', alignItems:'center', gap:5 }}>
-                <span style={{ width:7, height:7, borderRadius:'50%', background:c, boxShadow:`0 0 4px ${c}` }} />{l}
+                <span style={{ width:7, height:7, borderRadius:'50%', background:c, boxShadow:`0 0 4px ${c}` }} />{tr(l)}
               </span>
             ))}
           </div>
@@ -82,13 +83,13 @@ function ScreenInsights() {
               </div>
               <div className="q-scroll q-stack-sm" style={{ overflow:'auto', flex:1, paddingRight:4 }}>
                 <div style={{ padding:'10px 12px', background:'rgba(7,2,15,0.4)', borderRadius:10, border:'1px solid var(--q-stroke-1)' }}>
-                  <div className="q-eyebrow" style={{ marginBottom:6 }}>QUARK · WHY THIS MATTERS</div>
+                  <div className="q-eyebrow" style={{ marginBottom:6 }}>{tr('QUARK · WHY THIS MATTERS')}</div>
                   <div style={{ fontSize:11.5, color:'var(--q-text-2)', lineHeight:1.55 }}>
                     Nudging <b style={{color:'var(--q-text-1)'}}>{selected.label}</b> by ±10% propagates through {selected.type==='income'?5:selected.type==='goal'?4:3} downstream nodes within 30d. Strongest leverage: <b style={{color:'var(--q-violet-300)'}}>Digital twin</b>.
                   </div>
                 </div>
                 <div style={{ padding:'10px 12px', background:'rgba(7,2,15,0.4)', borderRadius:10, border:'1px solid var(--q-stroke-1)' }}>
-                  <div className="q-eyebrow" style={{ marginBottom:6 }}>RECENT</div>
+                  <div className="q-eyebrow" style={{ marginBottom:6 }}>{tr('RECENT')}</div>
                   {[
                     ['7d', '+2.4%'], ['30d', '+6.1%'], ['90d', '-1.2%'],
                   ].map(([k,v],i)=>(
@@ -103,10 +104,10 @@ function ScreenInsights() {
           ) : (
             <>
           <QSectionHead eyebrow="SYNTHESIZED" title="Top correlations" ai
-            action={<span className="q-mono" style={{fontSize:10,color:'var(--q-text-3)'}}>tap a sphere</span>} />
+            action={<span className="q-mono" style={{fontSize:10,color:'var(--q-text-3)'}}>{tr('tap a sphere')}</span>} />
           <div className="q-scroll q-stack-sm" style={{ overflow: 'auto', flex: 1, paddingRight: 4 }}>
             {correlations.length === 0 && (
-              <div style={{ textAlign:'center', padding:'40px 0', color:'var(--q-text-3)', fontSize:12 }}>No correlations in {filter} category</div>
+              <div style={{ textAlign:'center', padding:'40px 0', color:'var(--q-text-3)', fontSize:12 }}>{tr('No correlations in')} {tr(filter)} {tr('category')}</div>
             )}
             {correlations.map((c,i)=>(
               <div key={i} style={{ padding: '10px 12px', background: 'rgba(7,2,15,0.4)', borderRadius: 10, border: '1px solid var(--q-stroke-1)' }}>
@@ -164,6 +165,7 @@ const RADAR_RISKS = [
 ];
 
 function ScreenRadar() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = (typeof useToast === 'function') ? useToast() : (() => {});
   const [sevFilter, setSevFilter] = React.useState('ALL');
   const [catFilter, setCatFilter] = React.useState('ALL');
@@ -191,8 +193,8 @@ function ScreenRadar() {
       title: 'Active threats & leaks',
       subtitle: `${RADAR_RISKS.length} signals · $${RADAR_RISKS.reduce((s,r)=>s+r.a,0)}/mo at stake · live scan`,
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Window: 90d')}>Last 90d</button>
-        <button className="q-btn" onClick={()=>toast(`Resolved ${counts.low} low signals`)}><QIcon name="check" size={12}/> Resolve all low</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Window: 90d'))}>{tr('Last 90d')}</button>
+        <button className="q-btn" onClick={()=>toast(`${tr('Resolved')} ${counts.low} ${tr('low signals')}`)}><QIcon name="check" size={12}/> {tr('Resolve all low')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, height: '100%' }}>
@@ -200,7 +202,7 @@ function ScreenRadar() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
           <div className="q-card q-card-elev" style={{ padding: 16 }}>
             <QSectionHead eyebrow="ORBITAL SCAN" title="Live threat map" ai
-              action={<span className="q-mono" style={{ fontSize: 10, color: 'var(--q-accent-emerald)' }}>● SCANNING</span>} />
+              action={<span className="q-mono" style={{ fontSize: 10, color: 'var(--q-accent-emerald)' }}>● {tr('SCANNING')}</span>} />
             <div style={{ position: 'relative', display:'flex', alignItems:'center', justifyContent:'center', minHeight: 280 }}>
               <QRiskRadar size={300} />
               {/* Overlay: clickable risk dots */}
@@ -226,9 +228,9 @@ function ScreenRadar() {
               </svg>
             </div>
             <div style={{ display:'flex', gap:10, justifyContent:'center', fontSize:10.5, color:'var(--q-text-3)', marginTop:4 }}>
-              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#FF5A6E', boxShadow:'0 0 6px #FF5A6E' }} /> {counts.high} high</span>
-              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#FFB547', boxShadow:'0 0 6px #FFB547' }} /> {counts.med} med</span>
-              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#6DF3FF', boxShadow:'0 0 6px #6DF3FF' }} /> {counts.low} low</span>
+              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#FF5A6E', boxShadow:'0 0 6px #FF5A6E' }} /> {counts.high} {tr('high')}</span>
+              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#FFB547', boxShadow:'0 0 6px #FFB547' }} /> {counts.med} {tr('med')}</span>
+              <span style={{ display:'flex', gap:5, alignItems:'center' }}><span style={{ width:7, height:7, borderRadius:'50%', background:'#6DF3FF', boxShadow:'0 0 6px #6DF3FF' }} /> {counts.low} {tr('low')}</span>
             </div>
           </div>
 
@@ -304,7 +306,7 @@ function ScreenRadar() {
             <div className="q-stack-sm">
               {filtered.length === 0 && (
                 <div style={{ textAlign:'center', padding:'40px 0', color:'var(--q-text-3)', fontSize: 12 }}>
-                  No risks in this filter
+                  {tr('No risks in this filter')}
                 </div>
               )}
               {filtered.map(r => {
@@ -369,6 +371,7 @@ function ScreenRadar() {
 // 5. DIGITAL TWIN — Standard / Personalizado / Pseudo-Mateo
 // ─────────────────────────────────────────────────────────────
 function ScreenTwin() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = (typeof useToast === 'function') ? useToast() : (() => {});
   const N = 36;
   const [profile, setProfile] = React.useState('standard');
@@ -425,12 +428,12 @@ function ScreenTwin() {
 
   // Pseudo-Mateo behavioral predictions
   const pseudoBehaviors = [
-    { icon:'☕', label:'Coffee streak persists', impact:'-$1.2k/yr',  prob:0.84 },
-    { icon:'🍣', label:'+1 dinner/mo on stress weeks', impact:'-$2.4k/yr', prob:0.71 },
-    { icon:'💸', label:'Misses DCA in 2 mos/yr', impact:'-$3.8k @ 10y', prob:0.62 },
-    { icon:'📺', label:'Adds 1 streaming sub/yr', impact:'-$240/yr',   prob:0.78 },
-    { icon:'✈️', label:'Vacation overspend in summer', impact:'-$1.6k', prob:0.66 },
-    { icon:'🎁', label:'Q4 gift season +$800', impact:'-$800/yr', prob:0.92 },
+    { icon:'☕', label:tr('Coffee streak persists'), impact:'-$1.2k/yr',  prob:0.84 },
+    { icon:'🍣', label:tr('+1 dinner/mo on stress weeks'), impact:'-$2.4k/yr', prob:0.71 },
+    { icon:'💸', label:tr('Misses DCA in 2 mos/yr'), impact:'-$3.8k @ 10y', prob:0.62 },
+    { icon:'📺', label:tr('Adds 1 streaming sub/yr'), impact:'-$240/yr',   prob:0.78 },
+    { icon:'✈️', label:tr('Vacation overspend in summer'), impact:'-$1.6k', prob:0.66 },
+    { icon:'🎁', label:tr('Q4 gift season +$800'), impact:'-$800/yr', prob:0.92 },
   ];
 
   return (
@@ -439,16 +442,16 @@ function ScreenTwin() {
       title: 'Your financial twin · 36mo horizon',
       subtitle: 'Monte Carlo · 10,000 paths · refreshed nightly',
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Comparing all profiles')}><QIcon name="orbit" size={12}/> Compare</button>
-        <button className="q-btn" onClick={()=>toast('Running fresh scenario · 10k paths')}><QIcon name="sparkle" size={12}/> Run scenario</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Comparing all profiles'))}><QIcon name="orbit" size={12}/> {tr('Compare')}</button>
+        <button className="q-btn" onClick={()=>toast(tr('Running fresh scenario · 10k paths'))}><QIcon name="sparkle" size={12}/> {tr('Run scenario')}</button>
       </>,
     }}>
       {/* Profile selector */}
       <div style={{ display:'flex', gap: 8, marginBottom: 14 }}>
         {[
-          { k:'standard', l:'Mateo Standard',  s:'Sliders + manual scenario', c:'#9D4DFF', icon:'⚙️' },
-          { k:'custom',   l:'Personalizado',   s:'Describe a scenario in words', c:'#6DF3FF', icon:'✨' },
-          { k:'pseudo',   l:'Pseudo-Mateo',    s:'AI predicts your real behavior', c:'#FF7AE6', icon:'🧠' },
+          { k:'standard', l:tr('Mateo Standard'),  s:tr('Sliders + manual scenario'), c:'#9D4DFF', icon:'⚙️' },
+          { k:'custom',   l:tr('Personalizado'),   s:tr('Describe a scenario in words'), c:'#6DF3FF', icon:'✨' },
+          { k:'pseudo',   l:tr('Pseudo-Mateo'),    s:tr('AI predicts your real behavior'), c:'#FF7AE6', icon:'🧠' },
         ].map(t => (
           <button key={t.k} onClick={() => setProfile(t.k)} className="q-card" style={{
             flex: 1, padding: '12px 14px', textAlign: 'left',
@@ -483,7 +486,7 @@ function ScreenTwin() {
                   {profile === 'custom' && customScenario && <span className="q-chip q-chip-cyan">simulated</span>}
                 </div>
               </div>
-              <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)' }}>10,000 PATHS</div>
+              <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)' }}>{tr('10,000 PATHS')}</div>
             </div>
             <QForecastCone height={240}
               basePoints={base}
@@ -502,10 +505,10 @@ function ScreenTwin() {
                 action={<span className="q-mono q-num" style={{ fontSize: 11, color: delta >= 0 ? 'var(--q-accent-emerald)' : 'var(--q-accent-coral)' }}>Δ {delta >= 0 ? '+' : ''}${Math.abs(delta).toLocaleString()} / 10y</span>} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, flex: 1 }}>
                 {[
-                  { k:'Monthly DCA',      key:'dca',     displayVal: dcaVal(),    range:'$0 – $4,000', pct: sliders.dca,    accent:'#9D4DFF' },
-                  { k:'Coffee budget',    key:'coffee',  displayVal: coffeeVal(), range:'$0 – $300',   pct: sliders.coffee, accent:'#FF7AE6' },
-                  { k:'Equity allocation',key:'equity',  displayVal: equityVal(), range:'0 – 100%',    pct: sliders.equity, accent:'#6DF3FF' },
-                  { k:'Retirement age',   key:'retire',  displayVal: retireVal(), range:'45 – 70',     pct: sliders.retire, accent:'#4ADE9B' },
+                  { k:tr('Monthly DCA'),      key:'dca',     displayVal: dcaVal(),    range:'$0 – $4,000', pct: sliders.dca,    accent:'#9D4DFF' },
+                  { k:tr('Coffee budget'),    key:'coffee',  displayVal: coffeeVal(), range:'$0 – $300',   pct: sliders.coffee, accent:'#FF7AE6' },
+                  { k:tr('Equity allocation'),key:'equity',  displayVal: equityVal(), range:'0 – 100%',    pct: sliders.equity, accent:'#6DF3FF' },
+                  { k:tr('Retirement age'),   key:'retire',  displayVal: retireVal(), range:'45 – 70',     pct: sliders.retire, accent:'#4ADE9B' },
                 ].map((s)=>(
                   <div key={s.key} style={{ padding: 12, background: 'rgba(7,2,15,0.4)', borderRadius: 10, border: '1px solid var(--q-stroke-1)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -541,7 +544,7 @@ function ScreenTwin() {
                   value={prompt}
                   onChange={e => setPrompt(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runCustomPrompt(); }}
-                  placeholder="e.g. 'I get promoted in 6 months and increase my DCA 50%' or 'I take a 6-month sabbatical to travel'"
+                  placeholder={tr('e.g. \'I get promoted in 6 months and increase my DCA 50%\' or \'I take a 6-month sabbatical to travel\'')}
                   rows={3}
                   style={{
                     flex: 1, fontSize: 12, color: 'var(--q-text-1)',
@@ -553,16 +556,16 @@ function ScreenTwin() {
                 />
                 <button className="q-btn q-btn-primary" style={{ padding: '8px 14px', alignSelf: 'flex-start' }}
                   onClick={runCustomPrompt}>
-                  <QIcon name="sparkle" size={12}/> Simulate
+                  <QIcon name="sparkle" size={12}/> {tr('Simulate')}
                 </button>
               </div>
               <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom: 12 }}>
                 {[
-                  'I get promoted, +30% raise',
-                  'I take a 6-mo sabbatical',
-                  'Buy a house at $50k down',
-                  'New baby in 18 months',
-                  'I move 20% to crypto',
+                  tr('I get promoted, +30% raise'),
+                  tr('I take a 6-mo sabbatical'),
+                  tr('Buy a house at $50k down'),
+                  tr('New baby in 18 months'),
+                  tr('I move 20% to crypto'),
                 ].map(p => (
                   <button key={p} onClick={() => setPrompt(p)} className="q-chip" style={{ cursor:'pointer' }}>{p}</button>
                 ))}
@@ -581,7 +584,7 @@ function ScreenTwin() {
               )}
               {!customScenario && (
                 <div style={{ padding: 24, textAlign:'center', color:'var(--q-text-3)', fontSize:12, border:'1px dashed var(--q-stroke-1)', borderRadius:10, flex:1, display:'grid', placeItems:'center' }}>
-                  Type a scenario above and Quark will simulate the impact on your twin
+                  {tr('Type a scenario above and Quark will simulate the impact on your twin')}
                 </div>
               )}
             </div>
@@ -594,8 +597,7 @@ function ScreenTwin() {
                   {pseudoRunning ? '◯ Re-training…' : '↻ Re-train'}
                 </button>} />
               <div style={{ fontSize: 11.5, color: 'var(--q-text-3)', lineHeight: 1.55, marginBottom: 12 }}>
-                Pseudo-Mateo is trained on your last 90d transactions, sleep correlations, and stress patterns.
-                It predicts the small drifts that compound — the ones you don't see coming.
+                {tr('Pseudo-Mateo is trained on your last 90d transactions, sleep correlations, and stress patterns. It predicts the small drifts that compound — the ones you don\'t see coming.')}
               </div>
               <div style={{ display:'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1, minHeight:0, overflow:'auto' }} className="q-scroll">
                 {pseudoBehaviors.map((b, i) => (
@@ -701,79 +703,80 @@ function ScreenTwin() {
 // 5b. PREDICTIONS — distinct life-event scenario planner
 // ─────────────────────────────────────────────────────────────
 function ScreenPredictions() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = (typeof useToast === 'function') ? useToast() : (() => {});
   const [active, setActive] = React.useState('house');
   const [horizon, setHorizon] = React.useState(36);
 
   const SCENARIOS = {
     house: {
-      icon:'🏠', label:'Buy a house', cat:'major',
+      icon:'🏠', label:tr('Buy a house'), cat:'major',
       cost:'$50k down · $3.2k/mo', prob:0.78, when:'Aug 2026',
-      desc:'Down payment goal at 71% complete. Quark estimates close window opens Aug 2026 with current trajectory.',
-      kpis:[ ['Net worth Δ @ 5y','+$48k'],['Goal milestone','Aug 2026'],['Cash reserves drop','-$50k'],['Mortgage payment','$3,200/mo'] ],
-      timeline:[ {m:0,e:'Now'},{m:8,e:'Down payment locked'},{m:9,e:'Close · move in'},{m:18,e:'Refi window check'},{m:36,e:'+$58k equity'} ],
+      desc:tr('Down payment goal at 71% complete. Quark estimates close window opens Aug 2026 with current trajectory.'),
+      kpis:[ [tr('Net worth Δ @ 5y'),'+$48k'],[tr('Goal milestone'),'Aug 2026'],[tr('Cash reserves drop'),'-$50k'],[tr('Mortgage payment'),'$3,200/mo'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:8,e:'Down payment locked'},{m:9,e:'Close · move in'},{m:18,e:'Refi window check'},{m:36,e:'+$58k equity'} ],
       color:'#9D4DFF',
     },
     promo: {
-      icon:'💼', label:'Promotion · +30%', cat:'income',
+      icon:'💼', label:tr('Promotion · +30%'), cat:'income',
       cost:'+$2,520/mo gross', prob:0.42, when:'Q2 2026',
-      desc:'Based on tenure + role market data, Quark sees 42% probability of promotion in next 6mo. Income +30% would unlock significant DCA.',
-      kpis:[ ['Net worth Δ @ 10y','+$184k'],['DCA capacity','$2,400/mo'],['Retire-by','55 (was 58)'],['Tax bracket shift','+5%'] ],
-      timeline:[ {m:0,e:'Now'},{m:6,e:'Promotion event'},{m:7,e:'New tax bracket'},{m:12,e:'DCA ramp + emergency fund cap'},{m:36,e:'+$92k vs base'} ],
+      desc:tr('Based on tenure + role market data, Quark sees 42% probability of promotion in next 6mo. Income +30% would unlock significant DCA.'),
+      kpis:[ [tr('Net worth Δ @ 10y'),'+$184k'],[tr('DCA capacity'),'$2,400/mo'],[tr('Retire-by'),'55 (was 58)'],[tr('Tax bracket shift'),'+5%'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:6,e:'Promotion event'},{m:7,e:'New tax bracket'},{m:12,e:'DCA ramp + emergency fund cap'},{m:36,e:'+$92k vs base'} ],
       color:'#4ADE9B',
     },
     sabbatical: {
-      icon:'🏖️', label:'6-month sabbatical', cat:'risk',
+      icon:'🏖️', label:tr('6-month sabbatical'), cat:'risk',
       cost:'$32k burn · 6mo', prob:0.95, when:'on demand',
-      desc:'You have a 6-month emergency fund. Taking a sabbatical now would deplete 65% of liquid reserves but is fully feasible.',
-      kpis:[ ['Net worth Δ @ 5y','-$42k'],['Recovery time','18 months'],['Stress index forecast','-34%'],['Career risk','low'] ],
-      timeline:[ {m:0,e:'Now'},{m:1,e:'Sabbatical starts'},{m:6,e:'Return to work'},{m:18,e:'NW recovers to baseline'},{m:36,e:'-$24k vs base'} ],
+      desc:tr('You have a 6-month emergency fund. Taking a sabbatical now would deplete 65% of liquid reserves but is fully feasible.'),
+      kpis:[ [tr('Net worth Δ @ 5y'),'-$42k'],[tr('Recovery time'),'18 months'],[tr('Stress index forecast'),'-34%'],[tr('Career risk'),'low'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:1,e:'Sabbatical starts'},{m:6,e:'Return to work'},{m:18,e:'NW recovers to baseline'},{m:36,e:'-$24k vs base'} ],
       color:'#FFB547',
     },
     baby: {
-      icon:'👶', label:'New child', cat:'major',
+      icon:'👶', label:tr('New child'), cat:'major',
       cost:'$1,400/mo · 18 yrs', prob:0.0, when:'planned',
-      desc:'New dependent adds significant recurring cost. Quark recommends boosting emergency fund to 8mo and adding 529 plan.',
-      kpis:[ ['Net worth Δ @ 5y','-$78k'],['Emergency fund need','+$8k'],['Insurance update','+$240/yr'],['529 plan suggested','$200/mo'] ],
-      timeline:[ {m:0,e:'Now'},{m:9,e:'Birth'},{m:10,e:'Recurring cost begins'},{m:24,e:'529 ramp'},{m:36,e:'-$50k vs base'} ],
+      desc:tr('New dependent adds significant recurring cost. Quark recommends boosting emergency fund to 8mo and adding 529 plan.'),
+      kpis:[ [tr('Net worth Δ @ 5y'),'-$78k'],[tr('Emergency fund need'),'+$8k'],[tr('Insurance update'),'+$240/yr'],[tr('529 plan suggested'),'$200/mo'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:9,e:'Birth'},{m:10,e:'Recurring cost begins'},{m:24,e:'529 ramp'},{m:36,e:'-$50k vs base'} ],
       color:'#FF7AE6',
     },
     retire: {
-      icon:'🌅', label:'Early retire @ 50', cat:'horizon',
+      icon:'🌅', label:tr('Early retire @ 50'), cat:'horizon',
       cost:'requires +$340k', prob:0.31, when:'2042',
-      desc:'Retire-at-50 needs $1.8M nest egg. Current trajectory hits at age 58. Pulling 8 years forward requires 3.2x DCA.',
-      kpis:[ ['NW needed','$1.8M'],['Required DCA','$4,200/mo'],['Probability','31%'],['Gap to fix','$340k'] ],
-      timeline:[ {m:0,e:'Now'},{m:60,e:'+$280k milestone'},{m:120,e:'+$680k'},{m:180,e:'+$1.2M'},{m:240,e:'$1.8M target'} ],
+      desc:tr('Retire-at-50 needs $1.8M nest egg. Current trajectory hits at age 58. Pulling 8 years forward requires 3.2x DCA.'),
+      kpis:[ [tr('NW needed'),'$1.8M'],[tr('Required DCA'),'$4,200/mo'],[tr('Probability'),'31%'],[tr('Gap to fix'),'$340k'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:60,e:'+$280k milestone'},{m:120,e:'+$680k'},{m:180,e:'+$1.2M'},{m:240,e:'$1.8M target'} ],
       color:'#6DF3FF',
     },
     crypto: {
-      icon:'🚀', label:'25% crypto allocation', cat:'risk',
+      icon:'🚀', label:tr('25% crypto allocation'), cat:'risk',
       cost:'rebalance $15k', prob:0.5, when:'now',
-      desc:'Shifting 25% of portfolio to crypto increases expected return but volatility +2.4σ. Worst-case drawdown -42% in 12mo.',
-      kpis:[ ['Expected NW @ 5y','+$54k'],['Worst case (P10)','-$28k'],['Best case (P90)','+$140k'],['Volatility','+2.4σ'] ],
+      desc:tr('Shifting 25% of portfolio to crypto increases expected return but volatility +2.4σ. Worst-case drawdown -42% in 12mo.'),
+      kpis:[ [tr('Expected NW @ 5y'),'+$54k'],[tr('Worst case (P10)'),'-$28k'],[tr('Best case (P90)'),'+$140k'],[tr('Volatility'),'+2.4σ'] ],
       timeline:[ {m:0,e:'Rebalance'},{m:6,e:'First volatility cycle'},{m:18,e:'Halving event'},{m:24,e:'Re-evaluate'},{m:36,e:'+$54k median'} ],
       color:'#FFB547',
     },
     job: {
-      icon:'💼', label:'Career switch', cat:'income',
+      icon:'💼', label:tr('Career switch'), cat:'income',
       cost:'-15% income · 6mo', prob:0.25, when:'flexible',
-      desc:'Lateral move with -15% short-term income but 22% higher 5-year ceiling. Net positive after month 14.',
-      kpis:[ ['Net worth Δ @ 5y','+$28k'],['Break-even','month 14'],['Ceiling lift','+22%'],['Risk score','medium'] ],
+      desc:tr('Lateral move with -15% short-term income but 22% higher 5-year ceiling. Net positive after month 14.'),
+      kpis:[ [tr('Net worth Δ @ 5y'),'+$28k'],[tr('Break-even'),'month 14'],[tr('Ceiling lift'),'+22%'],[tr('Risk score'),'medium'] ],
       timeline:[ {m:0,e:'Switch'},{m:6,e:'Income trough'},{m:14,e:'Break-even'},{m:24,e:'New ceiling unlocked'},{m:60,e:'+$28k vs base'} ],
       color:'#C084FF',
     },
     education: {
-      icon:'🎓', label:'Master\'s degree', cat:'horizon',
+      icon:'🎓', label:tr('Master\'s degree'), cat:'horizon',
       cost:'$45k · 2yr', prob:0.55, when:'Sep 2026',
-      desc:'Tuition + opportunity cost = $86k. Income premium +25% post-completion. Break-even year 6.',
-      kpis:[ ['Tuition','$45k'],['Opportunity cost','$41k'],['Income premium','+25%'],['Break-even','year 6'] ],
-      timeline:[ {m:0,e:'Now'},{m:6,e:'Enroll'},{m:30,e:'Graduate'},{m:36,e:'New role'},{m:72,e:'Break-even'} ],
+      desc:tr('Tuition + opportunity cost = $86k. Income premium +25% post-completion. Break-even year 6.'),
+      kpis:[ [tr('Tuition'),'$45k'],[tr('Opportunity cost'),'$41k'],[tr('Income premium'),'+25%'],[tr('Break-even'),'year 6'] ],
+      timeline:[ {m:0,e:tr('Now')},{m:6,e:'Enroll'},{m:30,e:'Graduate'},{m:36,e:'New role'},{m:72,e:'Break-even'} ],
       color:'#4ADE9B',
     },
   };
 
   const s = SCENARIOS[active];
-  const cats = { major: 'Major life event', income: 'Income shift', risk: 'Risk-on bet', horizon: 'Long horizon' };
+  const cats = { major: tr('Major life event'), income: tr('Income shift'), risk: tr('Risk-on bet'), horizon: tr('Long horizon') };
 
   return (
     <QShell active="predictions" topbarProps={{
@@ -781,14 +784,14 @@ function ScreenPredictions() {
       title: 'Life event scenarios',
       subtitle: `${Object.keys(SCENARIOS).length} forecasted paths · synthesized from your trajectory`,
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Comparing all scenarios')}><QIcon name="orbit" size={12}/> Compare all</button>
-        <button className="q-btn" onClick={()=>toast('New custom scenario')}><QIcon name="plus" size={12}/> New scenario</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Comparing all scenarios'))}><QIcon name="orbit" size={12}/> {tr('Compare all')}</button>
+        <button className="q-btn" onClick={()=>toast(tr('New custom scenario'))}><QIcon name="plus" size={12}/> {tr('New scenario')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 14, height: '100%' }}>
         {/* LEFT — scenario picker */}
         <div className="q-card q-card-elev q-scroll" style={{ padding: 14, overflow: 'auto' }}>
-          <QSectionHead eyebrow="LIFE SCENARIOS" title="Pick what you're considering" />
+          <QSectionHead eyebrow="LIFE SCENARIOS" title={tr('Pick what you\'re considering')} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {Object.entries(SCENARIOS).map(([k, v]) => (
               <button key={k} onClick={() => setActive(k)} style={{
@@ -830,8 +833,8 @@ function ScreenPredictions() {
                 <div style={{ fontSize: 22, fontWeight: 600, marginTop: 2 }}>{s.label}</div>
                 <div className="q-mono" style={{ fontSize: 11, color: 'var(--q-text-3)' }}>P={s.prob.toFixed(2)} · {s.when} · {s.cost}</div>
               </div>
-              <button className="q-btn q-btn-primary" onClick={()=>toast(`Simulating ${s.label} · 10k paths`)}>
-                <QIcon name="sparkle" size={12}/> Run simulation
+                <button className="q-btn q-btn-primary" onClick={()=>toast(`Simulating ${s.label} · 10k paths`)}>
+                <QIcon name="sparkle" size={12}/> {tr('Run simulation')}
               </button>
             </div>
             <div style={{ fontSize: 12.5, color: 'var(--q-text-2)', lineHeight: 1.6, marginTop: 6 }}>
@@ -854,7 +857,7 @@ function ScreenPredictions() {
 
           {/* Timeline */}
           <div className="q-card q-card-elev" style={{ padding: 18, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <QSectionHead eyebrow="TIMELINE · IMPACT" title="What happens, when" ai
+            <QSectionHead eyebrow="TIMELINE · IMPACT" title={tr('What happens, when')} ai
               action={<div style={{ display:'flex', gap: 4 }}>
                 {[12, 36, 60, 120].map(h => (
                   <button key={h} onClick={() => setHorizon(h)} className="q-btn q-btn-ghost" style={{ padding: '3px 9px', fontSize: 10,
@@ -899,6 +902,7 @@ function ScreenPredictions() {
 // 6. TIMELINE
 // ─────────────────────────────────────────────────────────────
 function ScreenTimeline() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const events = [
     { date: 'TODAY', kind: 'ai', title: 'Quark synthesized 14 insights', sub: 'Coffee streak, FX leak, refi window', tone: 'violet' },
     { date: '2d',    kind: 'tx', title: 'Salary deposit · $8,400',    sub: 'Acme Corp · ACH', tone: 'cyan' },
@@ -920,8 +924,8 @@ function ScreenTimeline() {
       title: 'Your financial life · live thread',
       subtitle: 'Transactions, decisions, AI insights, milestones',
       actions: <>
-        <button className="q-btn q-btn-ghost">All · 4,182</button>
-        <button className="q-btn"><QIcon name="sparkle" size={12}/> Filter by AI</button>
+        <button className="q-btn q-btn-ghost">{tr('All')} · 4,182</button>
+        <button className="q-btn"><QIcon name="sparkle" size={12}/> {tr('Filter by AI')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, height: '100%' }}>
@@ -966,7 +970,7 @@ function ScreenTimeline() {
         {/* filters / micro-stats */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="q-card q-card-elev" style={{ padding: 14 }}>
-            <QSectionHead eyebrow="THIS MONTH" title="At a glance" />
+            <QSectionHead eyebrow="THIS MONTH" title={tr('At a glance')} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
                 ['AI insights', '47', '#9D4DFF'],
@@ -982,7 +986,7 @@ function ScreenTimeline() {
             </div>
           </div>
           <div className="q-card q-card-elev" style={{ padding: 14 }}>
-            <QSectionHead eyebrow="FILTERS" title="Layers" />
+            <QSectionHead eyebrow="FILTERS" title={tr('Layers')} />
             {['AI insights','Transactions','Milestones','Risk signals','Decisions'].map((f,i)=>(
               <label key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', fontSize: 12, color: 'var(--q-text-2)' }}>
                 <span style={{

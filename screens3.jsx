@@ -33,6 +33,7 @@ const MISSIONS_INIT = [
 ];
 
 function ScreenMissions() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const toast = (typeof useToast === 'function') ? useToast() : (() => {});
   const [missions, setMissions] = React.useState(MISSIONS_INIT);
   const [filter, setFilter] = React.useState('ACTIVE');
@@ -69,12 +70,12 @@ function ScreenMissions() {
 
   return (
     <QShell active="missions" topbarProps={{
-      breadcrumb: 'PROGRESSION / MISSIONS',
-      title: 'Active financial missions',
-      subtitle: `${counts.ACTIVE} active · ${counts.COMPLETED} completed · ${totalXp.toLocaleString()} XP · Level 14 Architect`,
+      breadcrumb: tr('PROGRESSION / MISSIONS'),
+      title: tr('Active financial missions'),
+      subtitle: `${counts.ACTIVE} ${tr('active')} · ${counts.COMPLETED} ${tr('completed')} · ${totalXp.toLocaleString()} XP · ${tr('Level')} 14 ${tr('Architect')}`,
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={()=>toast('Browsing completed · 23 total')}>Completed · 23</button>
-        <button className="q-btn" onClick={()=>toast('Generating new mission from your patterns…')}><QIcon name="sparkle" size={12}/> Generate mission</button>
+        <button className="q-btn q-btn-ghost" onClick={()=>toast(tr('Browsing completed · 23 total'))}>{tr('Completed')} · 23</button>
+        <button className="q-btn" onClick={()=>toast(tr('Generating new mission from your patterns…'))}><QIcon name="sparkle" size={12}/> {tr('Generate mission')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, height: '100%' }}>
@@ -82,10 +83,10 @@ function ScreenMissions() {
           {/* Filter tabs */}
           <div style={{ display:'flex', gap: 6, padding: 4, background:'rgba(7,2,15,0.5)', borderRadius: 10, border:'1px solid var(--q-stroke-1)' }}>
             {[
-              { k:'ACTIVE',    l:'Active' },
-              { k:'CRITICAL',  l:'Critical' },
-              { k:'COMPLETED', l:'Completed' },
-              { k:'ALL',       l:'All' },
+              { k:'ACTIVE',    l:tr('Active') },
+              { k:'CRITICAL',  l:tr('Critical') },
+              { k:'COMPLETED', l:tr('Completed') },
+              { k:'ALL',       l:tr('All') },
             ].map(t => (
               <button key={t.k} onClick={() => setFilter(t.k)} className="q-btn q-btn-ghost" style={{
                 flex: 1, padding:'6px 10px', fontSize: 11.5, border: 'none',
@@ -98,7 +99,7 @@ function ScreenMissions() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignContent: 'start', overflow: 'auto', flex: 1, minHeight: 0 }} className="q-scroll">
             {filtered.length === 0 && (
               <div style={{ gridColumn:'1 / -1', textAlign:'center', padding:'40px 0', color:'var(--q-text-3)', fontSize: 13 }}>
-                No missions in this filter
+                {tr('No missions in this filter')}
               </div>
             )}
             {filtered.map(m => {
@@ -126,7 +127,7 @@ function ScreenMissions() {
                       boxShadow: `0 0 20px ${m.color}80`, color: '#0B0617', flexShrink: 0,
                     }}>{m.rank}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: m.color }}>{m.tier} {isComplete && '· DONE'}</div>
+                      <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: m.color }}>{m.tier} {isComplete && '· ' + tr('DONE')}</div>
                       <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{m.title}</div>
                       <div style={{ fontSize: 11, color: 'var(--q-text-3)', marginTop: 2 }}>{m.sub}</div>
                     </div>
@@ -149,7 +150,7 @@ function ScreenMissions() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--q-text-3)' }}>
-                        <span>{isComplete ? 'Completed' : `${m.days}d remaining`}</span>
+                        <span>{isComplete ? tr('Completed') : `${m.days}${tr('d remaining')}`}</span>
                         <span className="q-mono">+{m.xp} XP</span>
                       </div>
                       <div style={{ height: 4, background: 'rgba(168,85,247,0.10)', borderRadius: 2, marginTop: 6, overflow: 'hidden' }}>
@@ -180,15 +181,15 @@ function ScreenMissions() {
                               fontSize: 12,
                               color: st.done ? 'var(--q-text-3)' : 'var(--q-text-1)',
                               textDecoration: st.done ? 'line-through' : 'none',
-                            }}>{st.t}</span>
+                            }}>{tr(st.t)}</span>
                           </button>
                         ))}
                       </div>
                       <div style={{ display:'flex', gap: 6, flexWrap:'wrap' }}>
-                        {!isComplete && <button className="q-btn q-btn-primary" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => completeMission(m.id)}><QIcon name="check" size={11}/> Mark complete</button>}
-                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`Continuing ${m.title}…`)}>Continue</button>}
-                        <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`${m.title} pinned to top`)}>Pin</button>
-                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast('Quark · breaking down sub-tasks')}><QIcon name="sparkle" size={11}/> Ask Quark</button>}
+                        {!isComplete && <button className="q-btn q-btn-primary" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => completeMission(m.id)}><QIcon name="check" size={11}/> {tr('Mark complete')}</button>}
+                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`${tr('Continuing')} ${m.title}…`)}>{tr('Continue')}</button>}
+                        <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`${m.title} ${tr('pinned to top')}`)}>{tr('Pin')}</button>
+                        {!isComplete && <button className="q-btn q-btn-ghost" style={{ padding:'5px 12px', fontSize: 11 }} onClick={() => toast(`${tr('Quark')} · ${tr('breaking down sub-tasks')}`)}><QIcon name="sparkle" size={11}/> {tr('Ask Quark')}</button>}
                       </div>
                     </div>
                   )}
@@ -201,7 +202,7 @@ function ScreenMissions() {
         {/* level / stats */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="q-card q-card-elev" style={{ padding: 16, textAlign: 'center', position: 'relative' }}>
-            <div className="q-eyebrow q-eyebrow-violet">YOUR ARCHETYPE</div>
+            <div className="q-eyebrow q-eyebrow-violet">{tr('YOUR ARCHETYPE')}</div>
             <div style={{ position: 'relative', width: 100, height: 100, margin: '14px auto' }}>
               <svg width="100" height="100" viewBox="0 0 100 100" style={{ animation: 'q-orbit 30s linear infinite' }}>
                 <polygon points="50,5 60,20 80,18 70,38 90,50 70,62 80,82 60,80 50,95 40,80 20,82 30,62 10,50 30,38 20,18 40,20"
@@ -213,8 +214,8 @@ function ScreenMissions() {
                 boxShadow: '0 0 20px rgba(157,77,255,0.6)',
                 fontSize: 24, fontWeight: 600, fontFamily: 'Geist Mono' }}>14</div>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>Architect</div>
-            <div style={{ fontSize: 11, color: 'var(--q-text-3)' }}>Builder of compounding systems</div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>{tr('Architect')}</div>
+            <div style={{ fontSize: 11, color: 'var(--q-text-3)' }}>{tr('Builder of compounding systems')}</div>
             <div style={{ marginTop: 12, height: 5, background: 'rgba(168,85,247,0.10)', borderRadius: 3, overflow: 'hidden' }}>
               <div style={{ width: '67%', height: '100%', background: 'linear-gradient(90deg, #9D4DFF, #6DF3FF)' }} />
             </div>
@@ -222,12 +223,12 @@ function ScreenMissions() {
           </div>
 
           <div className="q-card q-card-elev" style={{ padding: 14 }}>
-            <QSectionHead eyebrow="STATS" title="Discipline matrix" />
+            <QSectionHead eyebrow={tr('STATS')} title={tr('Discipline matrix')} />
             {[
-              ['Consistency', 87, '#9D4DFF'],
-              ['Precision',   72, '#6DF3FF'],
-              ['Patience',    91, '#4ADE9B'],
-              ['Adaptability',64, '#FFB547'],
+              [tr('Consistency'), 87, '#9D4DFF'],
+              [tr('Precision'),   72, '#6DF3FF'],
+              [tr('Patience'),    91, '#4ADE9B'],
+              [tr('Adaptability'),64, '#FFB547'],
             ].map(([k,v,c])=>(
               <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
                 <span style={{ fontSize: 11, color: 'var(--q-text-2)', width: 88 }}>{k}</span>
@@ -248,6 +249,7 @@ function ScreenMissions() {
 // 8. AI MODELS / PROVIDERS
 // ─────────────────────────────────────────────────────────────
 function ScreenModels() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const providers = [
     { name:'Anthropic',  model:'claude-haiku-4.5', status:'active',  lat: 142, cost: '$0.0012', usage: 0.62, color:'#9D4DFF' },
     { name:'Anthropic',  model:'claude-sonnet-4.5',status:'fallback',lat: 380, cost: '$0.0085', usage: 0.18, color:'#C084FF' },
@@ -263,20 +265,20 @@ function ScreenModels() {
 
   return (
     <QShell active="models" topbarProps={{
-      breadcrumb: 'INFRASTRUCTURE / AI MODELS',
-      title: 'Multi-provider routing',
-      subtitle: '6 providers configured · intelligent fallback enabled',
+      breadcrumb: tr('INFRASTRUCTURE / AI MODELS'),
+      title: tr('Multi-provider routing'),
+      subtitle: tr('6 providers configured · intelligent fallback enabled'),
       actions: <>
-        <button className="q-btn q-btn-ghost"><QIcon name="lock" size={12}/> Vault</button>
-        <button className="q-btn"><QIcon name="plus" size={12}/> Add provider</button>
+        <button className="q-btn q-btn-ghost"><QIcon name="lock" size={12}/> {tr('Vault')}</button>
+        <button className="q-btn"><QIcon name="plus" size={12}/> {tr('Add provider')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, height: '100%' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
           {/* routing graph */}
           <div className="q-card q-card-elev" style={{ padding: 16 }}>
-            <QSectionHead eyebrow="LIVE ROUTING" title="Intelligent fallback chain" ai
-              action={<span className="q-mono" style={{ fontSize:11, color:'var(--q-accent-emerald)' }}>● healthy</span>} />
+            <QSectionHead eyebrow={tr('LIVE ROUTING')} title={tr('Intelligent fallback chain')} ai
+              action={<span className="q-mono" style={{ fontSize:11, color:'var(--q-accent-emerald)' }}>● {tr('healthy')}</span>} />
             <svg width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="rt-line" x1="0" y1="0" x2="1" y2="0">
@@ -309,7 +311,7 @@ function ScreenModels() {
 
           {/* provider list */}
           <div className="q-card q-card-elev" style={{ padding: 16, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <QSectionHead eyebrow="CONFIGURED" title="6 providers · 9 models" />
+            <QSectionHead eyebrow={tr('CONFIGURED')} title={tr('6 providers · 9 models')} />
             <div className="q-scroll q-stack-sm" style={{ overflow: 'auto', flex: 1, paddingRight: 4 }}>
               {providers.map((p,i)=>(
                 <div key={i} style={{
@@ -328,20 +330,20 @@ function ScreenModels() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: 'var(--q-text-2)' }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: sevDot(p.status), boxShadow: `0 0 4px ${sevDot(p.status)}` }} />
-                    {p.status}
+                    {tr(p.status)}
                   </div>
                   <div className="q-mono q-num" style={{ fontSize: 11, color: 'var(--q-text-1)', textAlign:'right' }}>
                     {p.lat === '—' ? '—' : `${p.lat}ms`}
                   </div>
                   <div className="q-mono q-num" style={{ fontSize: 11, color: 'var(--q-text-1)', textAlign:'right' }}>
-                    {p.cost} <span style={{ color:'var(--q-text-3)', fontSize:9 }}>/req</span>
+                    {p.cost} <span style={{ color:'var(--q-text-3)', fontSize:9 }}>/ {tr('req')}</span>
                   </div>
                   {/* usage bar */}
                   <div>
                     <div style={{ height: 4, background: 'rgba(168,85,247,0.10)', borderRadius: 2, overflow: 'hidden' }}>
                       <div style={{ width: p.usage*100 + '%', height: '100%', background: p.color, boxShadow: `0 0 4px ${p.color}` }} />
                     </div>
-                    <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-text-3)', marginTop: 2 }}>{(p.usage*100).toFixed(0)}% traffic</div>
+                    <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-text-3)', marginTop: 2 }}>{(p.usage*100).toFixed(0)}% {tr('traffic')}</div>
                   </div>
                 </div>
               ))}
@@ -352,7 +354,7 @@ function ScreenModels() {
         {/* metrics rail */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="q-card q-card-elev" style={{ padding: 14 }}>
-            <div className="q-eyebrow q-eyebrow-cyan" style={{ marginBottom: 8 }}>24H · CONSUMPTION</div>
+            <div className="q-eyebrow q-eyebrow-cyan" style={{ marginBottom: 8 }}>{tr('24H')} · {tr('CONSUMPTION')}</div>
             <div className="q-num" style={{ fontSize: 24, fontWeight: 600 }}>$2.84</div>
             <div className="q-mono" style={{ fontSize: 10.5, color: 'var(--q-text-3)' }}>1,184 reqs · avg 168ms · μ$0.0024</div>
             <div style={{ marginTop: 10 }}>
@@ -360,13 +362,13 @@ function ScreenModels() {
             </div>
           </div>
           <div className="q-card q-card-elev" style={{ padding: 14 }}>
-            <QSectionHead eyebrow="POLICY" title="Routing rules" />
+            <QSectionHead eyebrow={tr('POLICY')} title={tr('Routing rules')} />
             {[
-              ['Default', 'haiku-4.5'],
-              ['Reasoning > 4 steps', 'sonnet-4.5'],
-              ['Bulk classification', 'gemini-flash'],
-              ['Sensitive (PII)', 'ollama local'],
-              ['Cost cap / day', '$5.00'],
+              [tr('Default'), 'haiku-4.5'],
+              [tr('Reasoning > 4 steps'), 'sonnet-4.5'],
+              [tr('Bulk classification'), 'gemini-flash'],
+              [tr('Sensitive (PII)'), 'ollama local'],
+              [tr('Cost cap / day'), '$5.00'],
             ].map(([k,v],i)=>(
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0',
                 borderBottom: i < 4 ? '1px dashed var(--q-stroke-1)' : 'none', fontSize: 11.5 }}>
@@ -376,8 +378,8 @@ function ScreenModels() {
             ))}
           </div>
           <div className="q-card q-card-elev" style={{ padding: 14, position: 'relative', overflow: 'hidden' }}>
-            <div className="q-eyebrow q-eyebrow-violet" style={{ marginBottom: 6 }}>API KEYS</div>
-            <div style={{ fontSize: 11.5, color: 'var(--q-text-2)', marginBottom: 10 }}>Encrypted at rest · zero-knowledge vault</div>
+            <div className="q-eyebrow q-eyebrow-violet" style={{ marginBottom: 6 }}>{tr('API KEYS')}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--q-text-2)', marginBottom: 10 }}>{tr('Encrypted at rest · zero-knowledge vault')}</div>
             <div className="q-mono" style={{ fontSize: 10.5, color: 'var(--q-text-3)' }}>
               sk-ant-api03-•••••••••<span style={{ color:'var(--q-violet-300)' }}>•••</span><br/>
               sk-•••••••••<span style={{ color:'var(--q-violet-300)' }}>•••</span><br/>
@@ -393,7 +395,8 @@ function ScreenModels() {
 // ─────────────────────────────────────────────────────────────
 // ONBOARDING — orbital visual (top-level so React never remounts it)
 // ─────────────────────────────────────────────────────────────
-function OrbVisual({ step, connected }) {
+function OrbVisual({ step, connected, tr }) {
+  const _tr = tr || ((s)=>s);
   const CONN_COLORS = { Banking:'#9D4DFF', Cards:'#C084FF', Crypto:'#6DF3FF', Brokerage:'#4ADE9B', Loans:'#FFB547', Manual:'#FF7AE6' };
   const ORBIT_MAP   = { Banking: 0, Loans: 0, Cards: 1, Manual: 1, Brokerage: 2, Crypto: 3 };
   const ORBIT_DURS  = [20, 28, 36, 44];
@@ -471,10 +474,10 @@ function OrbVisual({ step, connected }) {
           padding: '10px 14px', minWidth: 220, textAlign: 'center',
         }}>
           <div className="q-mono" style={{ fontSize: 9, letterSpacing: '0.18em', color: 'var(--q-violet-300)' }}>
-            QUARK_CORE · {step < 5 ? 'INITIALIZING' : 'READY'}
+            QUARK_CORE · {step < 5 ? _tr('INITIALIZING') : _tr('READY')}
           </div>
           <div style={{ fontSize: 12, color: 'var(--q-text-2)', marginTop: 4 }}>
-            {step < 5 ? 'Awaiting your data signature.' : 'All systems online.'}
+            {step < 5 ? _tr('Awaiting your data signature.') : _tr('All systems online.')}
           </div>
           <div style={{ height: 2, background: 'rgba(168,85,247,0.10)', borderRadius: 1, marginTop: 8, overflow: 'hidden' }}>
             <div className="q-shimmer" style={{ height: '100%' }} />
@@ -489,6 +492,7 @@ function OrbVisual({ step, connected }) {
 // 9. ONBOARDING — multi-step
 // ─────────────────────────────────────────────────────────────
 function ScreenOnboarding() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [step, setStep] = React.useState(1);
   const [connected, setConnected] = React.useState({ Banking: true, Cards: true, Crypto: false, Brokerage: false, Loans: false, Manual: false });
   const [risk, setRisk] = React.useState('Moderate');
@@ -520,27 +524,27 @@ function ScreenOnboarding() {
         <div style={{ animation: 'q-fade-up 0.4s ease' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 30 }}>
             <QLogo size={32} />
-            <span style={{ fontSize: 16, fontWeight: 600 }}>Quark Finance</span>
+            <span style={{ fontSize: 16, fontWeight: 600 }}>{tr('Quark Finance')}</span>
             <span className="q-chip">v0.42 · BETA</span>
           </div>
           <div className="q-mono" style={{ fontSize: 11, letterSpacing: '0.24em', color: 'var(--q-violet-300)', marginBottom: 14 }}>
-            STEP {String(step).padStart(2,'0')} / 06 · {STEPS[step-1].toUpperCase()}
+            STEP {String(step).padStart(2,'0')} / 06 · {tr(STEPS[step-1].toUpperCase())}
           </div>
 
           {step === 1 && <>
             <h1 style={{ fontSize: 58, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 18px',
               background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Your financial<br/>quantum leap.
+              {tr('Your financial')}<br/>{tr('quantum leap.')}
             </h1>
             <p style={{ fontSize: 16, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 32px' }}>
-              Quark synthesizes your finances using AI — patterns, risks, and opportunities you'd never spot manually.
+              {tr("Quark synthesizes your finances using AI — patterns, risks, and opportunities you'd never spot manually.")}
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button className="q-btn q-btn-primary" style={{ padding: '12px 24px', fontSize: 14 }} onClick={() => setStep(2)}>
-                Get started <QIcon name="arrow-right" size={13}/>
+                {tr('Get started')} <QIcon name="arrow-right" size={13}/>
               </button>
-              <button className="q-btn q-btn-ghost" style={{ padding: '12px 16px', fontSize: 13 }} onClick={nav}>I already have an account</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '12px 16px', fontSize: 13 }} onClick={nav}>{tr('I already have an account')}</button>
             </div>
           </>}
 
@@ -548,10 +552,10 @@ function ScreenOnboarding() {
             <h1 style={{ fontSize: 52, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 14px',
               background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Let me see<br/>your money.
+              {tr('Let me see')}<br/>{tr('your money.')}
             </h1>
             <p style={{ fontSize: 15, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 24px' }}>
-              Connect accounts and I'll synthesize 90 days of patterns in under a minute. Read-only. Encrypted.
+              {tr("Connect accounts and I'll synthesize 90 days of patterns in under a minute. Read-only. Encrypted.")}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxWidth: 460, marginBottom: 28 }}>
               {Object.entries({ Banking:'#9D4DFF · Plaid · 12,000+ banks', Cards:'#C084FF · Visa · MC · Amex',
@@ -575,14 +579,14 @@ function ScreenOnboarding() {
               })}
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(1)}>← Back</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(1)}>← {tr('Back')}</button>
               <button className="q-btn q-btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => setStep(3)}>
-                Connect {connCount} selected <QIcon name="arrow-right" size={12}/>
+                {tr('Connect')} {connCount} {tr('selected')} <QIcon name="arrow-right" size={12}/>
               </button>
-              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(3)}>Skip for now</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(3)}>{tr('Skip for now')}</button>
             </div>
             <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)', marginTop: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <QIcon name="lock" size={11} /> AES-256 · zero-knowledge · audited Q3 2026
+              <QIcon name="lock" size={11} /> AES-256 · zero-knowledge · {tr('audited Q3 2026')}
             </div>
           </>}
 
@@ -590,10 +594,10 @@ function ScreenOnboarding() {
             <h1 style={{ fontSize: 52, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 14px',
               background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Your risk<br/>profile.
+              {tr('Your risk')}<br/>{tr('profile.')}
             </h1>
             <p style={{ fontSize: 15, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 24px' }}>
-              Quark adapts every recommendation to your comfort with volatility.
+              {tr('Quark adapts every recommendation to your comfort with volatility.')}
             </p>
             <div style={{ display: 'flex', gap: 10, marginBottom: 28 }}>
               {['Conservative','Moderate','Aggressive'].map(r => (
@@ -605,17 +609,17 @@ function ScreenOnboarding() {
                   <div style={{ fontSize: { Conservative: 22, Moderate: 24, Aggressive: 26 }[r], marginBottom: 6 }}>
                     {{ Conservative: '🛡️', Moderate: '⚖️', Aggressive: '🚀' }[r]}
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: risk === r ? 'var(--q-text-1)' : 'var(--q-text-2)' }}>{r}</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: risk === r ? 'var(--q-text-1)' : 'var(--q-text-2)' }}>{tr(r)}</div>
                   <div style={{ fontSize: 10.5, color: 'var(--q-text-3)', marginTop: 4 }}>
-                    {{ Conservative: 'Capital preservation', Moderate: 'Balanced growth', Aggressive: 'Maximum growth' }[r]}
+                    {{ Conservative: tr('Capital preservation'), Moderate: tr('Balanced growth'), Aggressive: tr('Maximum growth') }[r]}
                   </div>
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(2)}>← Back</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(2)}>← {tr('Back')}</button>
               <button className="q-btn q-btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => setStep(4)}>
-                Continue <QIcon name="arrow-right" size={12}/>
+                {tr('Continue')} <QIcon name="arrow-right" size={12}/>
               </button>
             </div>
           </>}
@@ -624,10 +628,10 @@ function ScreenOnboarding() {
             <h1 style={{ fontSize: 52, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 14px',
               background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              What are you<br/>working toward?
+              {tr('What are you')}<br/>{tr('working toward?')}
             </h1>
             <p style={{ fontSize: 15, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 24px' }}>
-              Pick your goals. Quark will build a mission plan for each one.
+              {tr('Pick your goals. Quark will build a mission plan for each one.')}
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, maxWidth: 460, marginBottom: 28 }}>
               {Object.keys(goals).map(g => (
@@ -647,9 +651,9 @@ function ScreenOnboarding() {
               ))}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(3)}>← Back</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(3)}>← {tr('Back')}</button>
               <button className="q-btn q-btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => setStep(5)}>
-                Set {goalCount} goals <QIcon name="arrow-right" size={12}/>
+                {tr('Set')} {goalCount} {tr('goals')} <QIcon name="arrow-right" size={12}/>
               </button>
             </div>
           </>}
@@ -658,15 +662,15 @@ function ScreenOnboarding() {
             <h1 style={{ fontSize: 52, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 14px',
               background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Meet Quark,<br/>your AI analyst.
+              {tr('Meet Quark,')}<br/>{tr('your AI analyst.')}
             </h1>
             <p style={{ fontSize: 15, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 24px' }}>
-              Quark runs continuously in the background — synthesizing insights, spotting risks, and surfacing opportunities before you ask.
+              {tr('Quark runs continuously in the background — synthesizing insights, spotting risks, and surfacing opportunities before you ask.')}
             </p>
             <div className="q-card" style={{ padding: 16, maxWidth: 420, marginBottom: 28, borderColor: 'rgba(109,243,255,0.30)' }}>
-              <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--q-accent-cyan)', marginBottom: 8 }}>QUARK · PREVIEW</div>
+              <div className="q-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', color: 'var(--q-accent-cyan)', marginBottom: 8 }}>QUARK · {tr('PREVIEW')}</div>
               <div style={{ fontSize: 13, color: 'var(--q-text-1)', lineHeight: 1.5 }}>
-                "I've already spotted 2 risks and 1 opportunity in your connected accounts. Ready when you are."
+                "{tr("I've already spotted 2 risks and 1 opportunity in your connected accounts. Ready when you are.")}"
               </div>
               <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
                 <span className="q-chip">risk · floating rate</span>
@@ -675,9 +679,9 @@ function ScreenOnboarding() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(4)}>← Back</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '9px 14px', fontSize: 12 }} onClick={() => setStep(4)}>← {tr('Back')}</button>
               <button className="q-btn q-btn-primary" style={{ padding: '10px 18px', fontSize: 13 }} onClick={() => setStep(6)}>
-                Talk to Quark <QIcon name="sparkle" size={13}/>
+                {tr('Talk to Quark')} <QIcon name="sparkle" size={13}/>
               </button>
             </div>
           </>}
@@ -685,26 +689,26 @@ function ScreenOnboarding() {
           {step === 6 && <>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 20 }}>
               <span className="q-pulse-dot" />
-              <span className="q-mono" style={{ fontSize: 11, color: 'var(--q-accent-emerald)', letterSpacing: '0.14em' }}>QUARK ONLINE · SYNTHESIZING</span>
+              <span className="q-mono" style={{ fontSize: 11, color: 'var(--q-accent-emerald)', letterSpacing: '0.14em' }}>QUARK {tr('ONLINE')} · {tr('SYNTHESIZING')}</span>
             </div>
             <h1 style={{ fontSize: 52, fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.05, margin: '0 0 14px',
               background: 'linear-gradient(180deg, #FFFFFF, #4ADE9B 80%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              You're all set,<br/>Mateo.
+              {tr("You're all set")},<br/>Mateo.
             </h1>
             <p style={{ fontSize: 15, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 460, margin: '0 0 24px' }}>
-              {connCount} account{connCount !== 1 ? 's' : ''} connected · {goalCount} goal{goalCount !== 1 ? 's' : ''} set · {risk} profile.
-              Quark has already started synthesizing your financial picture.
+              {connCount} {tr('account')}{connCount !== 1 ? 's' : ''} {tr('connected')} · {goalCount} {tr('goal')}{goalCount !== 1 ? 's' : ''} {tr('set')} · {tr(risk)} {tr('profile')}.
+              {tr('Quark has already started synthesizing your financial picture.')}
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button className="q-btn q-btn-primary" style={{ padding: '12px 24px', fontSize: 14 }} onClick={nav}>
-                Enter your finances <QIcon name="arrow-right" size={13}/>
+                {tr('Enter your finances')} <QIcon name="arrow-right" size={13}/>
               </button>
             </div>
           </>}
         </div>
 
-        <OrbVisual step={step} connected={connected} />
+        <OrbVisual step={step} connected={connected} tr={tr} />
       </div>
 
       {/* progress strip */}
@@ -726,6 +730,7 @@ function ScreenOnboarding() {
 // 10. MOBILE — Dashboard
 // ─────────────────────────────────────────────────────────────
 function ScreenMobileDashboard() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const W = 390, H = 844;
   return (
     <div className="q-app" style={{ width: W, height: H, background: 'var(--q-bg-0)', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -744,7 +749,7 @@ function ScreenMobileDashboard() {
           <QLogo size={28}/>
           <div style={{ flex: 1 }}>
             <div className="q-mono" style={{ fontSize: 9, letterSpacing: '0.16em', color: 'var(--q-text-3)' }}>WED · NOV 18</div>
-            <div style={{ fontSize: 16, fontWeight: 500 }}>Hi, Mateo</div>
+            <div style={{ fontSize: 16, fontWeight: 500 }}>{tr('Hi, Mateo')}</div>
           </div>
           <button className="q-btn q-btn-ghost" style={{ padding: 7 }}><QIcon name="bell" size={14}/></button>
         </div>
@@ -752,7 +757,7 @@ function ScreenMobileDashboard() {
         <div className="q-card q-card-elev" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: '50%',
             background: 'radial-gradient(circle, rgba(157,77,255,0.4), transparent 70%)' }} />
-          <div className="q-eyebrow q-eyebrow-violet">NET WORTH · USD</div>
+          <div className="q-eyebrow q-eyebrow-violet">{tr('NET WORTH')} · USD</div>
           <div className="q-num" style={{ fontSize: 36, fontWeight: 600, letterSpacing: '-0.03em', marginTop: 4,
             background: 'linear-gradient(180deg, #FFFFFF, #C084FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             $172,480
@@ -777,11 +782,11 @@ function ScreenMobileDashboard() {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="q-mono" style={{ fontSize: 9, letterSpacing: '0.18em', color: 'var(--q-accent-cyan)', marginBottom: 2 }}>QUARK · 14m</div>
             <div style={{ fontSize: 12, color: 'var(--q-text-1)', lineHeight: 1.4 }}>
-              You spent <b>+38%</b> on food this week. Want a 60s breakdown?
+              You spent <b>+38%</b> {tr('on food this week. Want a 60s breakdown?')}
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-              <button className="q-btn q-btn-primary" style={{ padding: '4px 10px', fontSize: 11 }}>Show me</button>
-              <button className="q-btn q-btn-ghost" style={{ padding: '4px 10px', fontSize: 11 }}>Later</button>
+              <button className="q-btn q-btn-primary" style={{ padding: '4px 10px', fontSize: 11 }}>{tr('Show me')}</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '4px 10px', fontSize: 11 }}>{tr('Later')}</button>
             </div>
           </div>
         </div>
@@ -803,7 +808,7 @@ function ScreenMobileDashboard() {
 
       {/* recent */}
       <div style={{ position: 'relative', zIndex: 2, padding: '12px 22px', flex: 1, overflow: 'hidden' }}>
-        <div className="q-eyebrow" style={{ marginBottom: 8 }}>RECENT · TODAY</div>
+        <div className="q-eyebrow" style={{ marginBottom: 8 }}>{tr('RECENT')} · {tr('TODAY')}</div>
         <div className="q-stack-sm">
           {[
             { m:'Sushi Norte',     a:-184, t:'19:42', c:'#FF7AE6' },
@@ -835,11 +840,11 @@ function ScreenMobileDashboard() {
         borderTop: '1px solid var(--q-stroke-1)' }}>
         <div className="q-card" style={{ padding: '8px 6px', display: 'flex', justifyContent: 'space-around' }}>
           {[
-            { i:'home',     l:'Home',     a:true },
-            { i:'chart',    l:'Stats' },
+            { i:'home',     l:tr('Home'),     a:true },
+            { i:'chart',    l:tr('Stats') },
             { i:'spark',    l:'Quark', highlight:true },
-            { i:'flag',     l:'Goals' },
-            { i:'gear',     l:'More' },
+            { i:'flag',     l:tr('Goals') },
+            { i:'gear',     l:tr('More') },
           ].map((t,i)=>(
             <button key={i} style={{ background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '4px 10px',
@@ -866,6 +871,7 @@ function ScreenMobileDashboard() {
 
 // Mobile · Quark chat
 function ScreenMobileQuark() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const W = 390, H = 844;
   return (
     <div className="q-app" style={{ width: W, height: H, background: 'var(--q-bg-0)', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -885,7 +891,7 @@ function ScreenMobileQuark() {
           <QLogo size={26}/>
           <div>
             <div style={{ fontSize: 14, fontWeight: 500 }}>Quark</div>
-            <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-accent-emerald)', letterSpacing: '0.14em' }}>● ONLINE · 142ms</div>
+            <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-accent-emerald)', letterSpacing: '0.14em' }}>● {tr('ONLINE')} · 142ms</div>
           </div>
         </div>
         <button className="q-btn q-btn-ghost" style={{ padding: 6 }}><QIcon name="cpu" size={13}/></button>
@@ -937,7 +943,7 @@ function ScreenMobileQuark() {
           borderRadius: 22, padding: '8px 10px',
           boxShadow: '0 0 0 3px rgba(157,77,255,0.06), inset 0 0 12px rgba(157,77,255,0.04)' }}>
           <QIcon name="sparkle" size={13}/>
-          <span style={{ flex: 1, fontSize: 13, color: 'var(--q-text-3)' }}>Ask anything…</span>
+          <span style={{ flex: 1, fontSize: 13, color: 'var(--q-text-3)' }}>{tr('Ask anything')}…</span>
           <button className="q-btn q-btn-primary" style={{ padding: '6px 12px', borderRadius: 18 }}><QIcon name="send" size={11}/></button>
         </div>
       </div>

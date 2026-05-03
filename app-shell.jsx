@@ -23,11 +23,12 @@ const DESKTOP_SCREENS = {
 
 // Stub for screens not yet implemented — looks finished, not placeholder-y.
 function ScreenStub({ title, subtitle, active }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   return (
     <QShell active={active} topbarProps={{
-      breadcrumb: 'WORKSPACE / ' + title.toUpperCase(),
+      breadcrumb: tr('WORKSPACE') + ' / ' + title.toUpperCase(),
       title, subtitle,
-      actions: <button className="q-btn"><QIcon name="sparkle" size={12}/> Ask Quark</button>,
+      actions: <button className="q-btn"><QIcon name="sparkle" size={12}/> {tr('Ask Quark')}</button>,
     }}>
       <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
         <div style={{ textAlign: 'center', maxWidth: 380 }}>
@@ -42,13 +43,13 @@ function ScreenStub({ title, subtitle, active }) {
               animation: 'q-pulse 4s ease-in-out infinite' }} />
           </div>
           <div className="q-mono" style={{ fontSize: 10, letterSpacing: '0.2em', color: 'var(--q-violet-300)', marginBottom: 8 }}>
-            QUARK · INDEXING
+            QUARK · {tr('INDEXING')}
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 8px' }}>
-            Synthesizing your {title.toLowerCase()}
+            {tr('Synthesizing your')} {title.toLowerCase()}
           </h2>
           <p style={{ fontSize: 13, color: 'var(--q-text-3)', lineHeight: 1.5, margin: 0 }}>
-            This surface streams from your live data layer. Open it from the spotlight (⌘K) or wait for Quark's next pass.
+            {tr("This surface streams from your live data layer. Open it from the spotlight (⌘K) or wait for Quark's next pass.")}
           </p>
         </div>
       </div>
@@ -96,6 +97,7 @@ window.QShell = QShellRouted;
 // Mobile floating device frame (visible on demand)
 // ─────────────────────────────────────────────────────────────
 function MobilePreview({ open, onClose, screen, setScreen }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   if (!open) return null;
   const Comp = screen === 'quark' ? ScreenMobileQuark : ScreenMobileDashboard;
   return (
@@ -111,12 +113,12 @@ function MobilePreview({ open, onClose, screen, setScreen }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px',
         borderBottom: '1px solid var(--q-stroke-1)' }}>
         <div className="q-mono" style={{ fontSize: 10, letterSpacing: '0.18em', color: 'var(--q-violet-300)' }}>
-          MOBILE PREVIEW · iPhone 14
+          {tr('MOBILE PREVIEW')} · iPhone 14
         </div>
         <div style={{ flex: 1 }} />
         <div style={{ display: 'flex', gap: 4, background: 'rgba(7,2,15,0.5)', padding: 3, borderRadius: 8, border: '1px solid var(--q-stroke-1)' }}>
           {[
-            { k: 'dash', l: 'Home' },
+            { k: 'dash', l: tr('Home') },
             { k: 'quark', l: 'Quark' },
           ].map(t => (
             <button key={t.k} onClick={() => setScreen(t.k)} style={{
@@ -166,6 +168,7 @@ function MobilePreview({ open, onClose, screen, setScreen }) {
 // Onboarding modal — first-run only (skippable)
 // ─────────────────────────────────────────────────────────────
 function OnboardingOverlay({ open, onClose }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   if (!open) return null;
   return (
     <div style={{
@@ -175,7 +178,7 @@ function OnboardingOverlay({ open, onClose }) {
     }}>
       <div style={{ position: 'absolute', top: 16, right: 20, zIndex: 310 }}>
         <button onClick={onClose} className="q-btn q-btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }}>
-          Skip · Esc
+          {tr('Skip')} · Esc
         </button>
       </div>
       <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -190,6 +193,7 @@ function OnboardingOverlay({ open, onClose }) {
 // ─────────────────────────────────────────────────────────────
 function Spotlight({ open, onClose }) {
   const { go } = useQNav();
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [q, setQ] = React.useState('');
   React.useEffect(() => { if (open) setQ(''); }, [open]);
   if (!open) return null;
@@ -210,7 +214,7 @@ function Spotlight({ open, onClose }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--q-stroke-1)' }}>
           <QIcon name="sparkle" size={14}/>
           <input autoFocus value={q} onChange={e => setQ(e.target.value)}
-            placeholder="Ask Quark or jump to a surface…"
+            placeholder={tr('Ask Quark or jump to a surface…')}
             style={{
               flex: 1, background: 'transparent', border: 'none', outline: 'none',
               color: 'var(--q-text-1)', fontFamily: 'inherit', fontSize: 14,
@@ -236,7 +240,7 @@ function Spotlight({ open, onClose }) {
           ))}
           {items.length === 0 && (
             <div style={{ padding: 24, textAlign: 'center', color: 'var(--q-text-3)', fontSize: 13 }}>
-              No surfaces match "{q}". Press ↵ to ask Quark instead.
+              {tr('No surfaces match')} "{q}". {tr('Press ↵ to ask Quark instead.')}
             </div>
           )}
         </div>
@@ -249,6 +253,7 @@ function Spotlight({ open, onClose }) {
 // QuarkApp — the functional shell
 // ─────────────────────────────────────────────────────────────
 function QuarkApp({ tweaks }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [active, setActive] = React.useState('dashboard');
   const [transitionKey, setTransitionKey] = React.useState(0);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -308,7 +313,7 @@ function QuarkApp({ tweaks }) {
           display: 'grid', placeItems: 'center',
           backdropFilter: 'blur(12px)',
           boxShadow: '0 0 24px rgba(157,77,255,0.35), 0 8px 24px rgba(0,0,0,0.5)',
-        }} title="Mobile preview">
+        }} title={tr('Mobile preview')}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="4.5" y="2" width="7" height="12" rx="1.4"/>
             <path d="M7 12.5h2"/>
@@ -325,8 +330,8 @@ function QuarkApp({ tweaks }) {
           fontFamily: 'inherit', fontSize: 11,
           backdropFilter: 'blur(12px)',
           display: 'flex', alignItems: 'center', gap: 6,
-        }} title="View onboarding">
-          <QIcon name="sparkle" size={11}/> Onboarding
+        }} title={tr('View onboarding')}>
+          <QIcon name="sparkle" size={11}/> {tr('Onboarding')}
         </button>
 
         <MobilePreview open={mobileOpen} onClose={() => setMobileOpen(false)}
@@ -341,7 +346,8 @@ function QuarkApp({ tweaks }) {
 // ─────────────────────────────────────────────────────────────
 // QuarkRoot — gates: login → (first-run onboarding) → app
 // ─────────────────────────────────────────────────────────────
-function QuarkRoot({ tweaks }) {
+function QuarkRootInner({ tweaks }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [phase, setPhase] = React.useState(() => {
     if (localStorage.getItem('quark.session') === '1') {
       return localStorage.getItem('quark.firstrun') === 'done' ? 'app' : 'app';
@@ -372,13 +378,20 @@ function QuarkRoot({ tweaks }) {
   if (phase === 'onboarding') return (
     <div style={{ position:'fixed', inset:0, zIndex:50, animation:'q-fade-up 0.4s ease-out' }}>
       <div style={{ position:'absolute', top:16, right:20, zIndex:60, display:'flex', gap:8 }}>
-        <button onClick={finishOnboarding} className="q-btn q-btn-ghost" style={{ padding:'6px 12px', fontSize:12 }}>Skip · Esc</button>
-        <button onClick={finishOnboarding} className="q-btn" style={{ padding:'6px 12px', fontSize:12 }}>Enter Quark <QIcon name="arrow-right" size={11}/></button>
+        <button onClick={finishOnboarding} className="q-btn q-btn-ghost" style={{ padding:'6px 12px', fontSize:12 }}>{tr('Skip')} · Esc</button>
+        <button onClick={finishOnboarding} className="q-btn" style={{ padding:'6px 12px', fontSize:12 }}>{tr('Enter Quark')} <QIcon name="arrow-right" size={11}/></button>
       </div>
       <ScreenOnboarding />
     </div>
   );
   return <QuarkApp tweaks={tweaks} />;
 }
-Object.assign(window, { QuarkApp, QNavContext, useQNav, DESKTOP_SCREENS, QuarkRoot });
+
+// Wrap entire app in QLangProvider so useT/useTr is available everywhere
+function QuarkRoot({ tweaks }) {
+  const Provider = window.QLangProvider;
+  if (!Provider) return <QuarkRootInner tweaks={tweaks} />;
+  return <Provider><QuarkRootInner tweaks={tweaks} /></Provider>;
+}
+Object.assign(window, { QuarkApp, QNavContext, useQNav, DESKTOP_SCREENS, QuarkRoot, QuarkRootInner });
 

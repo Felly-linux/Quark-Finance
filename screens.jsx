@@ -56,6 +56,7 @@ function QShell({ active, children, topbarProps }) {
 // 1. DASHBOARD
 // ─────────────────────────────────────────────────────────────
 function ScreenDashboard() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [range, setRange] = React.useState('1Y');
   const nwAll = [82,84,83,86,89,88,92,94,93,97,101,100,104,108,112,116,121,125,131,136,140,144,148,153,158,162,167,172];
   const sliceMap = { '1M': 4, '3M': 13, '6M': 18, '1Y': 24, 'ALL': 99 };
@@ -71,8 +72,8 @@ function ScreenDashboard() {
       title: 'Good evening, Mateo',
       subtitle: 'Quark synthesized 14 signals while you were away',
       actions: <>
-        <button className="q-btn q-btn-ghost" onClick={() => nav('wallets')}><QIcon name="plus" size={12}/> Connect</button>
-        <button className="q-btn" onClick={() => nav('copilot')}><QIcon name="sparkle" size={12}/> Ask Quark</button>
+        <button className="q-btn q-btn-ghost" onClick={() => nav('wallets')}><QIcon name="plus" size={12}/> {tr('Connect')}</button>
+        <button className="q-btn" onClick={() => nav('copilot')}><QIcon name="sparkle" size={12}/> {tr('Ask Quark')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, minHeight: '100%' }}>
@@ -91,7 +92,7 @@ function ScreenDashboard() {
           <div className="q-card q-card-elev" style={{ padding: 18, position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
               <div>
-                <div className="q-eyebrow q-eyebrow-violet">PATRIMONY · {range} · WITH FORECAST</div>
+                <div className="q-eyebrow q-eyebrow-violet">{tr('PATRIMONY · WITH FORECAST')}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 4 }}>
                   <span className="q-num" style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.025em' }}>$172,480</span>
                   <span className="q-mono q-num" style={{ fontSize: 12, color: 'var(--q-accent-emerald)' }}>+ $7,920 / 30d</span>
@@ -111,20 +112,20 @@ function ScreenDashboard() {
             </div>
             <QNetWorthChart points={nwPoints} height={180} forecastFrom={0.65} />
             <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 10, color: 'var(--q-text-3)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 2, background: '#9D4DFF' }}/>Real</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 1, background: '#6DF3FF', borderTop: '1px dashed #6DF3FF' }}/>Quark forecast (P50)</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 2, background: '#9D4DFF' }}/>{tr('Real')}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 1, background: '#6DF3FF', borderTop: '1px dashed #6DF3FF' }}/>{tr('Quark forecast (P50)')}</span>
               <span style={{ marginLeft: 'auto' }} className="q-mono">σ = 4.2% · n={nwPoints.length}</span>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 12, flex: 1, minHeight: 0 }}>
             <div className="q-card q-card-elev" style={{ padding: 16, display: 'flex', flexDirection: 'column' }}>
-              <QSectionHead eyebrow="MONTHLY FLOW" title="Sources → Destinations" ai
+              <QSectionHead eyebrow="MONTHLY FLOW" title={tr('Sources → Destinations')} ai
                 action={<span className="q-mono q-num" style={{ fontSize: 11, color: 'var(--q-text-3)' }}>NOV · $10,970 in</span>} />
               <div style={{ flex: 1, minHeight: 0 }}><QCashFlowSankey height={220} /></div>
             </div>
             <div className="q-card q-card-elev" style={{ padding: 16, display: 'flex', flexDirection: 'column' }}>
-              <QSectionHead eyebrow="HEALTH" title="Financial vitals" ai />
+              <QSectionHead eyebrow="HEALTH" title={tr('Financial vitals')} ai />
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 }}>
                 <QDonut size={150} centerLabel="SCORE" centerValue="84"
                   items={[
@@ -143,7 +144,7 @@ function ScreenDashboard() {
                     { label: 'Volatility',   val: 48, color: '#FF5A6E' },
                   ].map(r => (
                     <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 11, color: 'var(--q-text-2)', width: 78 }}>{r.label}</span>
+                      <span style={{ fontSize: 11, color: 'var(--q-text-2)', width: 78 }}>{tr(r.label)}</span>
                       <div style={{ flex: 1, height: 4, background: 'rgba(168,85,247,0.10)', borderRadius: 2, overflow: 'hidden' }}>
                         <div style={{ width: r.val + '%', height: '100%', background: r.color, boxShadow: `0 0 6px ${r.color}` }} />
                       </div>
@@ -217,7 +218,7 @@ function QCopilotPanel({ compact, onSuggest }) {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-            Quark <span className="q-chip q-chip-cyan">analyst · terse</span>
+            Quark <span className="q-chip q-chip-cyan">{tr('analyst · terse')}</span>
           </div>
           <div className="q-mono" style={{ fontSize: 9.5, color: 'var(--q-text-3)' }}>
             claude-haiku-4.5 · 142ms · ctx 12.4k
@@ -244,7 +245,7 @@ function QCopilotPanel({ compact, onSuggest }) {
                   </div>
                 </QMsg>
                 <QMsg from="ai" reasoning>
-                  <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-violet-300)', letterSpacing: '0.14em', marginBottom: 4 }}>REASONING ↓</div>
+                  <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-violet-300)', letterSpacing: '0.14em', marginBottom: 4 }}>{tr('REASONING ↓')}</div>
                   <div style={{ fontSize: 10.5, color: 'var(--q-text-3)', lineHeight: 1.5 }}>
                     ① grouped txns by merchant_category=FOOD<br/>
                     ② weekly aggregate: $487 vs median $352<br/>
@@ -259,7 +260,7 @@ function QCopilotPanel({ compact, onSuggest }) {
         })}
         {thinking && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0' }}>
-            <span className="q-mono" style={{ fontSize: 9, letterSpacing: '0.14em', color: 'var(--q-violet-300)' }}>QUARK SYNTHESIZING</span>
+            <span className="q-mono" style={{ fontSize: 9, letterSpacing: '0.14em', color: 'var(--q-violet-300)' }}>{tr('QUARK SYNTHESIZING')}</span>
             <span style={{ display: 'inline-flex', gap: 3 }}>
               {[0,1,2].map(i => <span key={i} style={{ width: 4, height: 4, borderRadius: 2, background: 'var(--q-violet-300)', animation: `q-typing-dot 1.4s ${i * 0.18}s ease-in-out infinite` }} />)}
             </span>
@@ -276,7 +277,7 @@ function QCopilotPanel({ compact, onSuggest }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={onKey}
-          placeholder="Ask Quark anything · /forecast /explain"
+          placeholder={tr('Ask Quark anything · /forecast /explain')}
           style={{
             flex: 1, fontSize: 12, color: 'var(--q-text-1)',
             background: 'transparent', border: 'none', outline: 'none',
@@ -329,13 +330,13 @@ function QInsightFeed() {
   const toneClass = { violet: 'q-chip', cyan: 'q-chip q-chip-cyan', coral: 'q-chip q-chip-coral', emerald: 'q-chip q-chip-emerald' };
   return (
     <div className="q-card q-card-elev" style={{ padding: 14, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      <QSectionHead eyebrow="QUANTUM INSIGHTS" title="Synthesized · last 24h" ai
+      <QSectionHead eyebrow={tr('QUANTUM INSIGHTS')} title={tr('Synthesized · last 24h')} ai
         action={<span className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)' }}>14 NEW</span>} />
       <div className="q-stack-sm q-scroll" style={{ overflow: 'auto', flex: 1, paddingRight: 4 }}>
         {items.map((it, i) => (
           <div key={i} style={{ padding: '10px 12px', background: 'rgba(7,2,15,0.4)', borderRadius: 10, border: '1px solid var(--q-stroke-1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-              <span className={toneClass[it.tone]}>{it.tag}</span>
+              <span className={toneClass[it.tone]}>{tr(it.tag)}</span>
               <span className="q-mono" style={{ fontSize: 9.5, color: 'var(--q-text-3)', marginLeft: 'auto' }}>{i + 1}m</span>
             </div>
             <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--q-text-1)', marginBottom: 3 }}>{it.title}</div>
@@ -351,6 +352,7 @@ function QInsightFeed() {
 // 2. AI COPILOT FULL SCREEN
 // ─────────────────────────────────────────────────────────────
 function ScreenCopilot() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const THREADS = [
     { t: 'Why is food spend up?',          time: '2m' },
     { t: 'Forecast retirement at 55',      time: '1h' },
@@ -407,13 +409,13 @@ function ScreenCopilot() {
       subtitle: '12.4k tokens · 4 tools available',
       actions: <>
         <button className="q-btn q-btn-ghost"><QIcon name="cpu" size={12}/> claude-haiku-4.5</button>
-        <button className="q-btn" onClick={newThread}><QIcon name="plus" size={12}/> New thread</button>
+        <button className="q-btn" onClick={newThread}><QIcon name="plus" size={12}/> {tr('New thread')}</button>
       </>,
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 320px', gap: 14, height: '100%' }}>
         {/* threads */}
         <div className="q-card" style={{ padding: 12, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <div className="q-eyebrow" style={{ marginBottom: 10 }}>THREADS</div>
+          <div className="q-eyebrow" style={{ marginBottom: 10 }}>{tr('THREADS')}</div>
           <div className="q-stack-sm">
             {THREADS.map((t, i) => (
               <div key={i} onClick={() => setActiveThread(i)} style={{
@@ -429,7 +431,7 @@ function ScreenCopilot() {
             ))}
           </div>
           <div style={{ marginTop: 'auto', paddingTop: 12 }}>
-            <div className="q-eyebrow" style={{ marginBottom: 8 }}>TOOLS · ACTIVE</div>
+            <div className="q-eyebrow" style={{ marginBottom: 8 }}>{tr('TOOLS · ACTIVE')}</div>
             {['fetch_txns','run_forecast','price_quote','tax_calc'].map(t => (
               <div key={t} className="q-mono" style={{ fontSize: 10.5, color: 'var(--q-violet-300)', padding: '3px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 4, height: 4, background: 'currentColor', borderRadius: '50%' }} />{t}
@@ -452,8 +454,8 @@ function ScreenCopilot() {
             {msgs.length === 0 && (
               <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--q-text-3)' }}>
                 <div style={{ marginBottom: 12 }}><QLogo size={40} /></div>
-                <div style={{ fontSize: 14, color: 'var(--q-text-2)', marginBottom: 6 }}>New thread</div>
-                <div style={{ fontSize: 12 }}>Ask anything about your finances</div>
+                <div style={{ fontSize: 14, color: 'var(--q-text-2)', marginBottom: 6 }}>{tr('New thread')}</div>
+                <div style={{ fontSize: 12 }}>{tr('Ask anything about your finances')}</div>
               </div>
             )}
             {msgs.map((msg, i) => {
@@ -494,7 +496,7 @@ function ScreenCopilot() {
                       </QMsg>
                     </div>
                     <QMsg from="ai" reasoning>
-                      <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-violet-300)', letterSpacing: '0.14em', marginBottom: 6 }}>REASONING TRACE ↓ 4 STEPS · 1.2s</div>
+                      <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-violet-300)', letterSpacing: '0.14em', marginBottom: 6 }}>{tr('REASONING TRACE ↓ 4 STEPS · 1.2s')}</div>
                       <div className="q-mono" style={{ fontSize: 10.5, color: 'var(--q-text-3)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
 {`① pulled 90d txns where category=COFFEE  →  μ = $184/mo
 ② built shifted-DCA scenario: VTI, +$110/mo, 10y horizon
@@ -512,7 +514,7 @@ function ScreenCopilot() {
                 <span style={{ display: 'inline-flex', gap: 3 }}>
                   {[0,1,2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: 3, background: 'var(--q-violet-300)', animation: `q-typing-dot 1.4s ${i * 0.18}s ease-in-out infinite` }} />)}
                 </span>
-                <span className="q-mono" style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--q-violet-300)' }}>SYNTHESIZING</span>
+                <span className="q-mono" style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--q-violet-300)' }}>{tr('SYNTHESIZING')}</span>
               </div>
             )}
           </div>
@@ -527,21 +529,21 @@ function ScreenCopilot() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={onKey}
               rows={1}
-              placeholder="Ask Quark anything…"
+              placeholder={tr('Ask Quark anything…')}
               style={{
                 flex: 1, fontSize: 13, color: 'var(--q-text-1)',
                 background: 'transparent', border: 'none', outline: 'none',
                 fontFamily: 'var(--q-font-sans)', resize: 'none', minHeight: 22,
               }}
             />
-            <span className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)', whiteSpace: 'nowrap' }}>↵ send</span>
+            <span className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)', whiteSpace: 'nowrap' }}>{tr('↵ send')}</span>
             <button className="q-btn q-btn-primary" style={{ padding: '6px 14px' }} onClick={() => send()}><QIcon name="send" size={12} /></button>
           </div>
         </div>
 
         {/* context rail */}
         <div className="q-card" style={{ padding: 14, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <div className="q-eyebrow q-eyebrow-cyan" style={{ marginBottom: 8 }}>CONTEXT · ATTACHED</div>
+          <div className="q-eyebrow q-eyebrow-cyan" style={{ marginBottom: 8 }}>{tr('CONTEXT · ATTACHED')}</div>
           <div className="q-stack-sm" style={{ marginBottom: 16 }}>
             {[
               { t: '90d transactions', sub: '4,182 rows · 12 banks' },
@@ -555,7 +557,7 @@ function ScreenCopilot() {
               </div>
             ))}
           </div>
-          <div className="q-eyebrow" style={{ marginBottom: 8 }}>SUGGESTED PROMPTS</div>
+          <div className="q-eyebrow" style={{ marginBottom: 8 }}>{tr('SUGGESTED PROMPTS')}</div>
           <div className="q-stack-sm">
             {SUGGESTED.map((p, i) => (
               <div key={i} onClick={() => send(p)} style={{

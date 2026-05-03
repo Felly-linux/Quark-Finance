@@ -127,6 +127,7 @@ function QIcon({ name, size = 16 }) {
 }
 
 function QSidebar({ active = 'dashboard', onNav, collapsed = false }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   return (
     <aside style={{
       width: collapsed ? 60 : 220,
@@ -145,7 +146,7 @@ function QSidebar({ active = 'dashboard', onNav, collapsed = false }) {
         {!collapsed && (
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Quark</div>
-            <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-text-3)', letterSpacing: '0.16em' }}>FINANCE / v0.42</div>
+            <div className="q-mono" style={{ fontSize: 9, color: 'var(--q-text-3)', letterSpacing: '0.16em' }}>{tr('FINANCE')} / v0.42</div>
           </div>
         )}
       </div>
@@ -165,7 +166,7 @@ function QSidebar({ active = 'dashboard', onNav, collapsed = false }) {
           onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--q-stroke-2)'}
           onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--q-stroke-1)'}>
             <QIcon name="search" size={13} />
-            <span style={{ flex: 1 }}>Ask Quark…</span>
+            <span style={{ flex: 1 }}>{tr('Ask Quark')}…</span>
             <span className="q-mono" style={{ fontSize: 10, padding: '1px 5px', border: '1px solid var(--q-stroke-1)', borderRadius: 4 }}>⌘K</span>
           </div>
         </div>
@@ -198,7 +199,7 @@ function QSidebar({ active = 'dashboard', onNav, collapsed = false }) {
             >
               {isActive && <span style={{ position: 'absolute', left: -8, top: 6, bottom: 6, width: 2, background: 'var(--q-violet-400)', borderRadius: 2, boxShadow: '0 0 8px var(--q-violet-400)' }} />}
               <span style={{ color: isActive ? 'var(--q-violet-300)' : 'var(--q-text-3)' }}><QIcon name={it.icon} /></span>
-              {!collapsed && <span style={{ flex: 1 }}>{it.label}</span>}
+              {!collapsed && <span style={{ flex: 1 }}>{tr(it.label)}</span>}
               {it.glow && !collapsed && <span className="q-pulse-dot" style={{ width: 5, height: 5 }} />}
             </button>
           );
@@ -250,6 +251,8 @@ function QLogo({ size = 28 }) {
 
 // Topbar
 function QTopbar({ title, subtitle, breadcrumb, actions }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const trStr = (s) => (typeof s === 'string' ? tr(s) : s);
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 16,
@@ -262,12 +265,12 @@ function QTopbar({ title, subtitle, breadcrumb, actions }) {
       <div style={{ flex: 1 }}>
         {breadcrumb && (
           <div className="q-mono" style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--q-text-3)', marginBottom: 4 }}>
-            {breadcrumb}
+            {trStr(breadcrumb)}
           </div>
         )}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.02em' }}>{title}</h1>
-          {subtitle && <div style={{ fontSize: 12, color: 'var(--q-text-3)' }}>{subtitle}</div>}
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.02em' }}>{trStr(title)}</h1>
+          {subtitle && <div style={{ fontSize: 12, color: 'var(--q-text-3)' }}>{trStr(subtitle)}</div>}
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -294,9 +297,11 @@ function QKpi({ label, value, delta, deltaLabel, accent = 'violet', sparkline, s
     coral: 'var(--q-accent-coral)',
   };
   const positive = delta && !String(delta).startsWith('-');
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const trStr = (s) => (typeof s === 'string' ? tr(s) : s);
   return (
     <div className="q-card q-card-elev" style={{ padding: 16, position: 'relative' }}>
-      <div className="q-eyebrow" style={{ marginBottom: 8 }}>{label}</div>
+      <div className="q-eyebrow" style={{ marginBottom: 8 }}>{trStr(label)}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
         <span className="q-num" style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.025em', color: accentMap[accent] }}>{value}</span>
         {suffix && <span className="q-mono" style={{ fontSize: 11, color: 'var(--q-text-3)' }}>{suffix}</span>}
@@ -311,7 +316,7 @@ function QKpi({ label, value, delta, deltaLabel, accent = 'violet', sparkline, s
             <QIcon name={positive ? 'arrow-up' : 'arrow-down'} size={10} />
             <span className="q-num">{delta}</span>
           </span>
-          <span style={{ fontSize: 11, color: 'var(--q-text-3)' }}>{deltaLabel}</span>
+          <span style={{ fontSize: 11, color: 'var(--q-text-3)' }}>{trStr(deltaLabel)}</span>
         </div>
       )}
       {sparkline && <div style={{ marginTop: 10 }}>{sparkline}</div>}
@@ -355,12 +360,14 @@ function QSparkline({ points, color = 'var(--q-violet-400)', height = 28, fill =
 
 // Generic glass section header
 function QSectionHead({ eyebrow, title, action, ai }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const trStr = (s) => (typeof s === 'string' ? tr(s) : s);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 14, gap: 12 }}>
       <div>
-        {eyebrow && <div className="q-eyebrow q-eyebrow-violet" style={{ marginBottom: 4 }}>{eyebrow}</div>}
+        {eyebrow && <div className="q-eyebrow q-eyebrow-violet" style={{ marginBottom: 4 }}>{trStr(eyebrow)}</div>}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em' }}>{title}</h3>
+          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em' }}>{trStr(title)}</h3>
           {ai && (
             <span className="q-chip q-chip-cyan" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <span className="q-pulse-dot" style={{ width: 4, height: 4 }} />
