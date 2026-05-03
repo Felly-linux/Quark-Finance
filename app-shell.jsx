@@ -182,7 +182,7 @@ function OnboardingOverlay({ open, onClose }) {
         </button>
       </div>
       <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-        <ScreenOnboarding />
+        <ScreenOnboarding onFinish={onClose} />
       </div>
     </div>
   );
@@ -381,7 +381,7 @@ function QuarkRootInner({ tweaks }) {
         <button onClick={finishOnboarding} className="q-btn q-btn-ghost" style={{ padding:'6px 12px', fontSize:12 }}>{tr('Skip')} · Esc</button>
         <button onClick={finishOnboarding} className="q-btn" style={{ padding:'6px 12px', fontSize:12 }}>{tr('Enter Quark')} <QIcon name="arrow-right" size={11}/></button>
       </div>
-      <ScreenOnboarding />
+      <ScreenOnboarding onFinish={finishOnboarding} />
     </div>
   );
   return <QuarkApp tweaks={tweaks} />;

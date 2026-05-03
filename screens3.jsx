@@ -491,15 +491,25 @@ function OrbVisual({ step, connected, tr }) {
 // ─────────────────────────────────────────────────────────────
 // 9. ONBOARDING — multi-step
 // ─────────────────────────────────────────────────────────────
-function ScreenOnboarding() {
+function ScreenOnboarding({ onFinish }) {
   const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const langCtx = (typeof window.useT === 'function') ? window.useT() : null;
   const [step, setStep] = React.useState(1);
   const [connected, setConnected] = React.useState({ Banking: true, Cards: true, Crypto: false, Brokerage: false, Loans: false, Manual: false });
   const [risk, setRisk] = React.useState('Moderate');
   const [goals, setGoals] = React.useState({ 'Buy a home': true, 'Retire early': false, 'Emergency fund': true, 'Pay off debt': false, 'Travel fund': false, 'FIRE by 45': false });
   const toggleConn = (k) => setConnected(c => ({ ...c, [k]: !c[k] }));
   const toggleGoal = (k) => setGoals(g => ({ ...g, [k]: !g[k] }));
-  const nav = () => window.__qNav && window.__qNav('dashboard');
+  const finish = () => {
+    if (onFinish) onFinish();
+    else if (window.__qNav) window.__qNav('dashboard');
+  };
+  const toggleLang = () => {
+    if (langCtx && langCtx.setLang) {
+      langCtx.setLang(langCtx.lang === 'es' ? 'en' : 'es');
+    }
+  };
+  const lang = langCtx ? langCtx.lang : 'en';
 
   const STEPS = ['Welcome','Connect','Profile','Goals','Meet Quark','Done'];
   const connCount = Object.values(connected).filter(Boolean).length;
@@ -507,9 +517,9 @@ function ScreenOnboarding() {
 
   return (
     <div className="q-app" style={{
-      width: ARTBOARD_W, height: ARTBOARD_H,
+      width: '100vw', height: '100vh',
       position: 'relative', overflow: 'hidden',
-      background: 'var(--q-bg-0)', display: 'flex',
+      background: 'var(--q-bg-0)', display: 'flex', flexDirection: 'column',
     }}>
       <QAmbient intensity={1.4} />
       <QParticles count={48} />
@@ -519,14 +529,21 @@ function ScreenOnboarding() {
           animation: 'q-pulse 8s ease-in-out infinite' }} />
       </div>
 
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '0 80px', position: 'relative', zIndex: 2 }}>
+      {/* top bar with logo + lang toggle */}
+      <div style={{ position: 'relative', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 48px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <QLogo size={32} />
+          <span style={{ fontSize: 16, fontWeight: 600 }}>{tr('Quark Finance')}</span>
+          <span className="q-chip">v0.42 · BETA</span>
+        </div>
+        <button onClick={toggleLang} className="q-btn q-btn-ghost" style={{ padding: '5px 14px', fontSize: 12, borderRadius: 18 }}>
+          {lang === 'es' ? '🌐 EN' : '🌐 ES'}
+        </button>
+      </div>
+
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '0 48px', position: 'relative', zIndex: 2 }}>
         {/* LEFT — content changes by step */}
         <div style={{ animation: 'q-fade-up 0.4s ease' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 30 }}>
-            <QLogo size={32} />
-            <span style={{ fontSize: 16, fontWeight: 600 }}>{tr('Quark Finance')}</span>
-            <span className="q-chip">v0.42 · BETA</span>
-          </div>
           <div className="q-mono" style={{ fontSize: 11, letterSpacing: '0.24em', color: 'var(--q-violet-300)', marginBottom: 14 }}>
             STEP {String(step).padStart(2,'0')} / 06 · {tr(STEPS[step-1].toUpperCase())}
           </div>
@@ -544,7 +561,7 @@ function ScreenOnboarding() {
               <button className="q-btn q-btn-primary" style={{ padding: '12px 24px', fontSize: 14 }} onClick={() => setStep(2)}>
                 {tr('Get started')} <QIcon name="arrow-right" size={13}/>
               </button>
-              <button className="q-btn q-btn-ghost" style={{ padding: '12px 16px', fontSize: 13 }} onClick={nav}>{tr('I already have an account')}</button>
+              <button className="q-btn q-btn-ghost" style={{ padding: '12px 16px', fontSize: 13 }} onClick={finish}>{tr('I already have an account')}</button>
             </div>
           </>}
 
@@ -701,7 +718,7 @@ function ScreenOnboarding() {
               {tr('Quark has already started synthesizing your financial picture.')}
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="q-btn q-btn-primary" style={{ padding: '12px 24px', fontSize: 14 }} onClick={nav}>
+              <button className="q-btn q-btn-primary" style={{ padding: '12px 24px', fontSize: 14 }} onClick={finish}>
                 {tr('Enter your finances')} <QIcon name="arrow-right" size={13}/>
               </button>
             </div>
