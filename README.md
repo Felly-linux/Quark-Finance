@@ -1,28 +1,75 @@
-# Quark-Finance
+# Quark Finance
 
-Interfaz de finanzas personal con IA (Quark). Diseño futurista con dashboard, copilot, insights cuánticos, radar de riesgo, gemelo digital, predicciones Monte Carlo, misiones financieras, onboarding orbital y vista móvil.
+> **Tu asistente financiero cuántico con IA.**
 
-## i18n / Traducción Español
+Quark Finance no es otra app de presupuestos. Es un **copiloto de inteligencia artificial** que vive en tus finanzas, detectando patrones, fugas y oportunidades que ningún humano vería manualmente.
 
-Sistema de internacionalización en dos capas implementado:
+## ¿Qué es?
 
-- **Capa 1 — `t(key)`**: Diccionario por claves (`TRANSLATIONS.es`) en `auth.jsx`. ~370+ traducciones ES.
-- **Capa 2 — `tr(string)`**: Traducción string-a-string basada en inglés. Fallback identity si no hay match.
+Una interfaz de finanzas personal de próxima generación — diseñada como un **centro de comando espacial** — donde cada dato cobra vida. Quark analiza tus transacciones, conecta cuentas bancarias, tarjetas, crypto e inversiones, y sintetiza todo en insights accionables en tiempo real.
 
-### Componentes traducidos
+## ✨ Funcionalidades
 
-| Archivo | Pantallas / Componentes | Estado |
-|---|---|---|
-| `auth.jsx` | Diccionario `TRANSLATIONS.es`, contexto `QLangProvider`, `useTr()` | ✅ |
-| `primitives.jsx` | Sidebar (nav items, version), QTopbar, QSectionHead | ✅ |
-| `screens.jsx` | Dashboard, AI Copilot, Insights feed, placeholders | ✅ |
-| `screens2.jsx` | Risk Radar, Digital Twin, Predictions, Timeline | ✅ |
-| `screens3.jsx` | Missions, AI Models, Onboarding (6 pasos), Mobile Dashboard, Mobile Quark | ✅ |
-| `app-shell.jsx` | ScreenStub, MobilePreview, Spotlight (⌘K), OnboardingOverlay, QuarkRootInner | ✅ |
-| `interactive.jsx` | ScreenSettings, ScreenWallets, ScreenAnalytics | ✅ |
+### 🧠 AI Copilot
+Chat conversacional con tu analista financiero personal. Pregunta "¿podré pagar el alquiler?" y obtén respuestas con probabilidades, trazas de razonamiento y fuentes verificables.
 
-### Persistencia
+### 🕸️ Quantum Insights
+Grafo neural interactivo y force-directed que revela conexiones ocultas entre tu ingreso, gastos, estrés financiero y metas. Arrastra nodos, descubre correlaciones.
 
-- Preferencia de idioma en `localStorage` bajo clave `quark.lang`
-- Sincronización cross-component vía `CustomEvent('quark-settings-changed')`
-- Cambio de idioma desde Settings > Language (pills EN/ES)
+### 🎯 Risk Radar
+Mapa de amenazas en vivo: cuentas flotantes, suscripciones zombie, fugas de dinero y riesgos de liquidez — todo priorizado y con soluciones listas.
+
+### 👤 Digital Twin
+Gemelo financiero que simula tu futuro con **Monte Carlo · 10,000 caminos**. ¿Qué pasa si te ascienden? ¿Si tomas un sabático? ¿Si compras casa? Simulalo.
+
+### 🔮 Predictions
+Forecast de patrimonio con conos de probabilidad (P10/P50/P90). Escenarios personalizados escritos en lenguaje natural que Quark simula al instante.
+
+### 🚀 Missions
+Gamificación financiera: misiones con XP, niveles y arquetipos. Desde "cancelar 3 suscripciones zombie" hasta "ahorrar $50k para tu casa". Progreso visible, recompensas reales.
+
+### 📱 Multi-Provider AI Routing
+6 proveedores de IA configurados con fallback inteligente. Haiku como primario, Sonnet para razonamiento complejo, Gemini para clasificación masiva, Ollama local para datos sensibles.
+
+### 🌐 Bilingüe (EN / ES)
+Soporte completo de español e inglés. Cambio de idioma en tiempo real con persistencia en `localStorage`. ~370+ traducciones cubriendo cada pantalla.
+
+## 🎨 Diseño
+
+- **Estética cósmica** con nebulosas de fondo, partículas flotantes y efecto glass
+- **Orbital onboarding** — conecta tus cuentas como electrones orbitando el núcleo de Quark
+- **Vista móvil** — preview en frame de iPhone con dashboard y chat
+- **Spotlight (⌘K)** — navegación rápida por toda la app
+- **Densidad ajustable** — modo Comfortable o Quantum Analyst
+
+## 🏗️ Arquitectura
+
+```
+Finance/
+├── auth.jsx          # Login, i18n (QLangProvider, TRANSLATIONS), MouseAmbient
+├── app-shell.jsx     # Router, ScreenStub, MobilePreview, Spotlight, OnboardingOverlay
+├── primitives.jsx    # QSidebar, QTopbar, QKpi, QSparkline, QLogo, QParticles
+├── charts.jsx        # Gráficos especializados (donut, radar, etc.)
+├── screens.jsx       # Dashboard, AI Copilot, Quantum Insights
+├── screens2.jsx      # Risk Radar, Digital Twin, Predictions, Timeline
+├── screens3.jsx      # Missions, AI Models, Onboarding, Mobile screens
+├── interactive.jsx   # Force-directed graph, Settings, Wallets, Analytics
+├── tweaks-panel.jsx  # Panel de ajustes en vivo (densidad, intensidad)
+├── tokens.css        # Design tokens (colores, animaciones, glass)
+└── index.html        # Entry point (React 18 + Babel standalone)
+```
+
+## 🚀 Cómo usar
+
+1. Abre `index.html` en tu navegador
+2. Inicia sesión o crea una cuenta (simulado)
+3. Pasa el onboarding orbital
+4. Explora las 12+ pantallas desde el sidebar
+
+## 🛠️ Tech Stack
+
+- **React 18** (CDN)
+- **Babel Standalone** (JSX en browser)
+- **SVG** para todos los gráficos y animaciones
+- **Custom Events** para sincronización cross-component
+- **localStorage** para persistencia de sesión, idioma y moneda
