@@ -89,6 +89,7 @@ const SIDEBAR_ITEMS = [
   { key: 'missions', label: 'Missions', icon: 'flag' },
   { key: 'radar', label: 'Risk Radar', icon: 'radar' },
   { key: 'insights', label: 'Quantum Insights', icon: 'graph' },
+  { key: 'security', label: 'Security', icon: 'lock' },
   { key: 'models', label: 'AI Models', icon: 'cpu' },
   { key: 'settings', label: 'Settings', icon: 'gear' },
 ];

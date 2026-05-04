@@ -15,6 +15,7 @@ const DESKTOP_SCREENS = {
   predictions: () => <ScreenPredictions />,
   timeline:    () => <ScreenTimeline />,
   missions:    () => <ScreenMissions />,
+  security:    () => <ScreenSecurity />,
   models:      () => <ScreenModels />,
   wallets:     () => <ScreenWallets />,
   analytics:   () => <ScreenAnalytics />,

@@ -717,6 +717,297 @@ function ScreenAnalytics() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// ScreenSecurity — privacy & data-protection control center
+// ─────────────────────────────────────────────────────────────
+const SECURITY_DEFAULTS = {
+  zeroKnowledge: true,
+  e2ee: true,
+  localInference: false,
+  vaultLockMin: 5,
+  biometric: true,
+  twoFa: true,
+  hardwareKey: false,
+  sessionTimeoutMin: 30,
+  telemetry: false,
+  crashReports: false,
+  aiTraining: false,
+  anonAggregation: false,
+  marketingShare: false,
+  thirdPartySharing: false,
+  retentionDays: 365,
+  dataRegion: 'EU',
+  ipAllowlist: false,
+  vpnOnly: false,
+  offlineFirst: false,
+  auditLog: true,
+};
+
+function loadSec() {
+  try { return { ...SECURITY_DEFAULTS, ...JSON.parse(localStorage.getItem('quark.security') || '{}') }; }
+  catch { return { ...SECURITY_DEFAULTS }; }
+}
+
+function ScreenSecurity() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const langCtx = (typeof window.useT === 'function') ? window.useT() : { lang: 'en' };
+  const lang = langCtx.lang;
+  const toast = useToast();
+  const [sec, setSec] = useState(loadSec);
+  const update = (k, v) => {
+    setSec(s => {
+      const next = { ...s, [k]: v };
+      try { localStorage.setItem('quark.security', JSON.stringify(next)); } catch {}
+      return next;
+    });
+    if (k === 'telemetry' && !v) toast(tr('Telemetry disabled · zero pings outbound'));
+    else if (k === 'aiTraining' && !v) toast(tr('Removed from AI training pool'));
+    else if (k === 'zeroKnowledge' && v) toast(tr('Zero-knowledge mode enforced'));
+    else toast(`${tr(LABELS[lang][k] || k)} · ${v ? tr('on') : tr('off')}`);
+  };
+
+  const sessions = [
+    { dev: 'MacBook Pro · Sonoma', loc: 'Medellín · CO', ip: '186.84.•.•', last: 'now', current: true },
+    { dev: 'iPhone 15 · iOS 17.4', loc: 'Medellín · CO', ip: '186.84.•.•', last: '14m' },
+    { dev: 'Chrome · Windows', loc: 'Bogotá · CO', ip: '190.27.•.•', last: '2d' },
+  ];
+
+  const auditEntries = [
+    { t: 'now',   k: 'AUTH', desc: tr('Session started · biometric'),   tone: 'emerald' },
+    { t: '14m',   k: 'VAULT', desc: tr('Vault opened · 142ms'),          tone: 'violet' },
+    { t: '1h',    k: 'EXPORT', desc: tr('Encrypted export · 4.2 MB'),    tone: 'cyan' },
+    { t: '2h',    k: 'KEY', desc: tr('Recovery code rotated'),           tone: 'violet' },
+    { t: '1d',    k: 'POLICY', desc: tr('Telemetry policy: disabled'),   tone: 'emerald' },
+    { t: '3d',    k: 'AUTH', desc: tr('Failed 2FA attempt · IP blocked'),tone: 'coral' },
+  ];
+
+  const dataPolicies = [
+    { k: 'aiTraining',        sub: tr('Quark never trains on your transactions') },
+    { k: 'anonAggregation',   sub: tr('Aggregate-only stats · k-anon ≥ 50') },
+    { k: 'marketingShare',    sub: tr('No partners receive your data') },
+    { k: 'thirdPartySharing', sub: tr('Plaid · CoinGecko read-only') },
+  ];
+
+  const privacyPolicies = [
+    { k: 'telemetry',     sub: tr('Zero PII · usage frequencies only') },
+    { k: 'crashReports',  sub: tr('Stack traces with redacted state') },
+  ];
+
+  return (
+    <QShell active="security" topbarProps={{
+      breadcrumb: tr('WORKSPACE') + ' / ' + tr('SECURITY'),
+      title: lang === 'es' ? 'Seguridad y privacidad' : 'Security & privacy',
+      subtitle: lang === 'es'
+        ? 'Cifrado · zero-knowledge · sesiones · derechos sobre tus datos'
+        : 'Encryption · zero-knowledge · sessions · your data rights',
+      actions: <button className="q-btn" onClick={() => toast(tr('Security report regenerated'), { tone:'ok' })}><QIcon name="lock" size={12}/> {tr('Regenerate report')}</button>,
+    }}>
+      <div className="q-scroll" style={{ height: '100%', overflow: 'auto', paddingRight: 4 }}>
+
+        {/* HERO · encryption status */}
+        <div className="q-card q-card-elev" style={{ padding: 22, marginBottom: 14, position:'relative', overflow:'hidden' }}>
+          <div style={{ position:'absolute', top:-60, right:-60, width:260, height:260, borderRadius:'50%',
+            background: 'radial-gradient(circle, rgba(74,222,155,0.18), transparent 70%)' }} />
+          <div style={{ position:'absolute', top:-30, right:80, width:160, height:160, borderRadius:'50%',
+            background: 'radial-gradient(circle, rgba(157,77,255,0.20), transparent 70%)' }} />
+          <div style={{ display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap: 24, alignItems:'center', position:'relative' }}>
+            <div>
+              <div className="q-mono q-eyebrow-violet" style={{ fontSize: 10.5, letterSpacing: '0.22em', marginBottom: 8 }}>
+                {tr('VAULT INTEGRITY')} · {tr('VERIFIED')}
+              </div>
+              <h2 style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.025em', margin: '0 0 10px',
+                background: 'linear-gradient(180deg, #FFFFFF, #4ADE9B 90%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {tr('Your data is yours. End of story.')}
+              </h2>
+              <p style={{ fontSize: 13, color: 'var(--q-text-2)', lineHeight: 1.55, maxWidth: 520, margin: 0 }}>
+                {tr('AES-256-GCM at rest · TLS 1.3 in transit · keys derived locally with Argon2id. Quark cannot read your vault — and neither can a court order.')}
+              </p>
+              <div style={{ display:'flex', gap: 8, marginTop: 14, flexWrap:'wrap' }}>
+                <span className="q-chip q-chip-emerald">AES-256-GCM</span>
+                <span className="q-chip q-chip-cyan">TLS 1.3</span>
+                <span className="q-chip">Argon2id · 256MB</span>
+                <span className="q-chip">Zero-knowledge</span>
+                <span className="q-chip">SOC 2 · ISO 27001</span>
+                <span className="q-chip">{tr('Audited Q3 2026')}</span>
+              </div>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 10 }}>
+              {[
+                { l: tr('Last vault access'), v: '142ms', sub: tr('this session') },
+                { l: tr('Master key age'), v: '4d', sub: tr('rotates 30d') },
+                { l: tr('Active sessions'), v: '3', sub: tr('see below') },
+                { l: tr('Audit entries'), v: '124', sub: tr('last 30d') },
+              ].map((b,i) => (
+                <div key={i} style={{ padding: 12, background:'rgba(7,2,15,0.4)', borderRadius: 10, border: '1px solid var(--q-stroke-1)' }}>
+                  <div className="q-mono" style={{ fontSize: 9.5, color:'var(--q-text-3)', letterSpacing:'0.16em', marginBottom: 4 }}>{b.l.toUpperCase()}</div>
+                  <div className="q-num" style={{ fontSize: 22, fontWeight: 600, color: 'var(--q-text-1)' }}>{b.v}</div>
+                  <div className="q-mono" style={{ fontSize: 9.5, color:'var(--q-text-3)' }}>{b.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ENCRYPTION + ACCESS */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div className="q-card q-card-elev" style={{ padding: 18 }}>
+            <QSectionHead eyebrow={tr('ENCRYPTION')} title={tr('Vault & key custody')} />
+            <Toggle k={tr('Zero-knowledge mode')} v={sec.zeroKnowledge} onChange={v=>update('zeroKnowledge',v)} sub={tr('Keys never leave your device')} />
+            <Toggle k={tr('End-to-end encryption')} v={sec.e2ee} onChange={v=>update('e2ee',v)} sub={tr('AES-256-GCM · per-record nonce')} />
+            <Toggle k={tr('Local-only AI inference')} v={sec.localInference} onChange={v=>update('localInference',v)} sub={tr('No prompts hit Quark servers')} />
+            <Row k={tr('Vault auto-lock')} v={
+              <Pills value={String(sec.vaultLockMin)} options={['1','5','15','60']} onChange={v=>update('vaultLockMin', Number(v))} />
+            } />
+            <Row k={tr('Data residency')} v={
+              <Pills value={sec.dataRegion} options={['EU','US','LATAM']} onChange={v=>update('dataRegion', v)} />
+            } />
+            <div style={{ display:'flex', gap: 8, marginTop: 14, flexWrap:'wrap' }}>
+              <button className="q-btn" onClick={() => toast(tr('Recovery code copied · save it offline'), { tone:'ok' })}><QIcon name="lock" size={12}/> {tr('View recovery code')}</button>
+              <button className="q-btn q-btn-ghost" onClick={() => toast(tr('Master key rotation scheduled'))}><QIcon name="cpu" size={12}/> {tr('Rotate master key')}</button>
+            </div>
+          </div>
+
+          <div className="q-card q-card-elev" style={{ padding: 18 }}>
+            <QSectionHead eyebrow={tr('ACCESS')} title={tr('Authentication & sessions')} />
+            <Toggle k={tr('Biometric unlock')} v={sec.biometric} onChange={v=>update('biometric',v)} sub="Face ID · Touch ID" />
+            <Toggle k={tr('Two-factor (TOTP)')} v={sec.twoFa} onChange={v=>update('twoFa',v)} sub={tr('Authenticator · 6 backup codes')} />
+            <Toggle k={tr('Hardware key (FIDO2)')} v={sec.hardwareKey} onChange={v=>update('hardwareKey',v)} sub={tr('YubiKey · Solo · TouchID Passkey')} />
+            <Row k={tr('Session timeout')} v={
+              <Pills value={String(sec.sessionTimeoutMin)} options={['15','30','60','240']} onChange={v=>update('sessionTimeoutMin', Number(v))} />
+            } />
+            <div style={{ marginTop: 10 }}>
+              <div className="q-eyebrow" style={{ marginBottom: 8 }}>{tr('ACTIVE SESSIONS')}</div>
+              <div className="q-stack-sm">
+                {sessions.map((s,i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap: 10, padding: '10px 12px', background:'rgba(7,2,15,0.4)', borderRadius: 10, border:'1px solid var(--q-stroke-1)' }}>
+                    <span style={{ width: 8, height: 8, borderRadius:'50%',
+                      background: s.current ? 'var(--q-accent-emerald)' : 'var(--q-text-3)',
+                      boxShadow: s.current ? '0 0 8px var(--q-accent-emerald)' : 'none' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, color: 'var(--q-text-1)', fontWeight: 500 }}>
+                        {s.dev}{s.current && <span className="q-chip q-chip-emerald" style={{ marginLeft: 6 }}>{tr('this device')}</span>}
+                      </div>
+                      <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)' }}>{s.loc} · {s.ip} · {s.last}</div>
+                    </div>
+                    {!s.current && (
+                      <button className="q-btn q-btn-ghost" style={{ padding:'4px 8px', fontSize: 11 }}
+                        onClick={() => toast(tr('Session revoked'))}>{tr('Revoke')}</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button className="q-btn q-btn-ghost" style={{ marginTop: 10 }} onClick={() => toast(tr('All other sessions revoked'))}>{tr('Sign out everywhere else')}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* DATA TREATMENT */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div className="q-card q-card-elev" style={{ padding: 18 }}>
+            <QSectionHead eyebrow={tr('DATA TREATMENT')} title={tr('How Quark handles your data')} />
+            {dataPolicies.map((p,i) => (
+              <Toggle key={i}
+                k={tr(LABELS[lang][p.k])}
+                v={sec[p.k]}
+                onChange={v => update(p.k, v)}
+                sub={p.sub}
+              />
+            ))}
+            <Row k={tr('Retention period')} v={
+              <Pills value={String(sec.retentionDays)} options={['90','365','730','3650']} onChange={v=>update('retentionDays', Number(v))} />
+            } />
+            <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)', marginTop: 12, lineHeight: 1.6 }}>
+              {tr('Retention applies to derived analytics. Encrypted vault is kept until you delete it.')}
+            </div>
+          </div>
+
+          <div className="q-card q-card-elev" style={{ padding: 18 }}>
+            <QSectionHead eyebrow={tr('TELEMETRY')} title={tr('What leaves your device')} />
+            {privacyPolicies.map((p,i) => (
+              <Toggle key={i}
+                k={tr(LABELS[lang][p.k])}
+                v={sec[p.k]}
+                onChange={v => update(p.k, v)}
+                sub={p.sub}
+              />
+            ))}
+            <Toggle k={tr('Offline-first mode')} v={sec.offlineFirst} onChange={v=>update('offlineFirst',v)} sub={tr('Sync only on Wi-Fi · battery > 30%')} />
+            <Toggle k={tr('VPN-only access')} v={sec.vpnOnly} onChange={v=>update('vpnOnly',v)} sub={tr('Block requests outside VPN')} />
+            <Toggle k={tr('IP allowlist')} v={sec.ipAllowlist} onChange={v=>update('ipAllowlist',v)} sub={tr('Pin sessions to known networks')} />
+            <Toggle k={tr('Tamper-evident audit log')} v={sec.auditLog} onChange={v=>update('auditLog',v)} sub={tr('Hash-chained · cryptographically verifiable')} />
+          </div>
+        </div>
+
+        {/* DATA RIGHTS */}
+        <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
+          <QSectionHead eyebrow={tr('YOUR RIGHTS')} title={tr('Portability · access · erasure')} />
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap: 10 }}>
+            {[
+              { i:'arrow-down', t:tr('Export all data'),   d:tr('Encrypted JSON · 4.2 MB'), on:() => toast(tr('Export queued · check email')) },
+              { i:'cpu',        t:tr('Access log'),         d:tr('GDPR Art. 15 · who saw what'), on:() => toast(tr('Access log copied to clipboard')) },
+              { i:'lock',       t:tr('Revoke all keys'),    d:tr('Forces re-authentication'), on:() => toast(tr('All keys rotated'), { tone:'ok' }) },
+              { i:'flag',       t:tr('Delete account'),     d:tr('Cryptographic shred · 30d grace'), on:() => toast(tr('Confirm via email to proceed'), { tone:'warn' }), danger:true },
+            ].map((x,i) => (
+              <button key={i} onClick={x.on} className="q-card" style={{
+                padding: 14, fontFamily:'inherit', cursor:'pointer', color:'inherit', textAlign:'left',
+                border: x.danger ? '1px solid rgba(255,122,230,0.30)' : '1px solid var(--q-stroke-1)',
+              }}>
+                <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 6, color: x.danger ? '#FF7AE6' : 'var(--q-violet-300)' }}>
+                  <QIcon name={x.i} size={14}/>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--q-text-1)' }}>{x.t}</span>
+                </div>
+                <div className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)' }}>{x.d}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* AUDIT LOG */}
+        <div className="q-card q-card-elev" style={{ padding: 18, marginBottom: 14 }}>
+          <QSectionHead eyebrow={tr('AUDIT')} title={tr('Recent security events')} ai />
+          <div className="q-stack-sm">
+            {auditEntries.map((e,i) => {
+              const dot = { emerald:'var(--q-accent-emerald)', violet:'var(--q-violet-300)', cyan:'var(--q-accent-cyan)', coral:'#FF7AE6' }[e.tone];
+              return (
+                <div key={i} style={{ display:'flex', alignItems:'center', gap: 12, padding: '10px 12px', background:'rgba(7,2,15,0.4)', borderRadius: 10, border: '1px solid var(--q-stroke-1)' }}>
+                  <span className="q-mono" style={{ fontSize: 10, color: 'var(--q-text-3)', width: 38 }}>{e.t}</span>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: dot, boxShadow: `0 0 6px ${dot}` }} />
+                  <span className="q-mono" style={{ fontSize: 10, letterSpacing:'0.16em', color: dot, width: 70 }}>{e.k}</span>
+                  <span style={{ flex: 1, fontSize: 12.5, color: 'var(--q-text-1)' }}>{e.desc}</span>
+                </div>
+              );
+            })}
+          </div>
+          <button className="q-btn q-btn-ghost" style={{ marginTop: 12 }} onClick={() => toast(tr('Full audit log exported · signed Ed25519'))}>
+            <QIcon name="arrow-down" size={12}/> {tr('Download full audit log')}
+          </button>
+        </div>
+      </div>
+    </QShell>
+  );
+}
+
+const LABELS = {
+  en: {
+    aiTraining: 'AI training opt-in',
+    anonAggregation: 'Anonymous aggregation',
+    marketingShare: 'Marketing partners',
+    thirdPartySharing: 'Third-party providers',
+    telemetry: 'Anonymous telemetry',
+    crashReports: 'Crash reports',
+  },
+  es: {
+    aiTraining: 'Uso para entrenar IA',
+    anonAggregation: 'Agregación anónima',
+    marketingShare: 'Socios de marketing',
+    thirdPartySharing: 'Proveedores externos',
+    telemetry: 'Telemetría anónima',
+    crashReports: 'Reportes de fallos',
+  },
+};
+
+window.ScreenSecurity = ScreenSecurity;
 window.ScreenSettings = ScreenSettings;
 window.ScreenWallets = ScreenWallets;
 window.ScreenAnalytics = ScreenAnalytics;
