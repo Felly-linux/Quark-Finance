@@ -66,16 +66,14 @@ function QSidebarNav() {
 }
 
 // Monkey-patch QShell to use the navigating sidebar instead of static one.
-// We replace QSidebar inside the rendered tree by re-rendering on top.
-// Simpler: re-export a wrapped version of QShell.
 const _OriginalQShell = window.QShell;
 function QShellRouted({ active, children, topbarProps }) {
   const { go } = useQNav();
   return (
     <div className="q-app" style={{
+      position: 'relative',
       width: '100%', height: '100%',
-      minWidth: 1280, minHeight: 800,
-      display: 'flex', position: 'relative', overflow: 'hidden',
+      display: 'flex', overflow: 'hidden',
       background: 'var(--q-bg-0)',
     }}>
       <QAmbient intensity={1} />
@@ -176,7 +174,7 @@ function OnboardingOverlay({ open, onClose }) {
       background: 'rgba(7,2,15,0.92)', backdropFilter: 'blur(8px)',
       animation: 'q-fade-up 0.4s ease-out',
     }}>
-      <div style={{ position: 'absolute', top: 16, right: 20, zIndex: 310 }}>
+      <div style={{ position: 'absolute', top: 16, right: 20, zIndex: 310, display: 'flex', gap: 8 }}>
         <button onClick={onClose} className="q-btn q-btn-ghost" style={{ padding: '6px 12px', fontSize: 12 }}>
           {tr('Skip')} · Esc
         </button>
@@ -297,6 +295,7 @@ function QuarkApp({ tweaks }) {
         overflow: 'hidden',
       }}>
         <div key={transitionKey} style={{
+          position: 'relative',
           width: '100%', height: '100%',
           animation: 'q-screen-in 0.42s cubic-bezier(.2,.8,.2,1)',
         }}>

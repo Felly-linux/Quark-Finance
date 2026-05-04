@@ -529,16 +529,13 @@ function ScreenOnboarding({ onFinish }) {
           animation: 'q-pulse 8s ease-in-out infinite' }} />
       </div>
 
-      {/* top bar with logo + lang toggle */}
-      <div style={{ position: 'relative', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 48px 0' }}>
+      {/* top bar with logo */}
+      <div style={{ position: 'relative', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '24px 48px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <QLogo size={32} />
           <span style={{ fontSize: 16, fontWeight: 600 }}>{tr('Quark Finance')}</span>
           <span className="q-chip">v0.42 · BETA</span>
         </div>
-        <button onClick={toggleLang} className="q-btn q-btn-ghost" style={{ padding: '5px 14px', fontSize: 12, borderRadius: 18 }}>
-          {lang === 'es' ? '🌐 EN' : '🌐 ES'}
-        </button>
       </div>
 
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '0 48px', position: 'relative', zIndex: 2 }}>
@@ -728,8 +725,15 @@ function ScreenOnboarding({ onFinish }) {
         <OrbVisual step={step} connected={connected} tr={tr} />
       </div>
 
-      {/* progress strip */}
-      <div style={{ position: 'absolute', top: 32, right: 40, display: 'flex', gap: 4, zIndex: 3 }}>
+      {/* lang toggle — bottom left */}
+      <div style={{ position: 'absolute', bottom: 32, left: 48, zIndex: 10 }}>
+        <button onClick={toggleLang} className="q-btn q-btn-ghost" style={{ padding: '6px 16px', fontSize: 12, borderRadius: 18, backdropFilter: 'blur(12px)' }}>
+          🌐 {lang === 'es' ? 'EN' : 'ES'}
+        </button>
+      </div>
+
+      {/* progress strip — bottom center */}
+      <div style={{ position: 'absolute', bottom: 36, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 10 }}>
         {[1,2,3,4,5,6].map(s => (
           <div key={s} onClick={() => setStep(s)} style={{
             width: 28, height: 3, borderRadius: 2, cursor: 'pointer',
