@@ -170,6 +170,7 @@ function ScreenDashboard() {
 // AI Copilot panel
 // ─────────────────────────────────────────────────────────────
 function QCopilotPanel({ compact, onSuggest }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const SEED = [
     { from: 'user', text: 'Why did spending on food spike this week?' },
     { from: 'ai', seed: true },
@@ -321,6 +322,7 @@ function QMsg({ from, children, reasoning }) {
 }
 
 function QInsightFeed() {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const items = [
     { tag: 'PATTERN', tone: 'violet', title: 'Coffee streak ↑37% in 14d', body: 'You\'re on a 14-day daily-cafe streak. At current pace: +$184/mo.' },
     { tag: 'OPPORTUNITY', tone: 'cyan', title: 'Move idle to HYSA', body: '$12,400 idle in checking. At 4.6% APY → +$47.5/mo passive.' },

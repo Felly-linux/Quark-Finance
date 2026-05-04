@@ -249,6 +249,152 @@ function QLogo({ size = 28 }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// QLoadingScreen — fullscreen atom animation between auth/onboarding/app
+// ─────────────────────────────────────────────────────────────
+function QLoadingScreen({ message, sublabel, onDone, duration = 1400 }) {
+  const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!onDone) return;
+    const t = setTimeout(onDone, duration);
+    return () => clearTimeout(t);
+  }, [onDone, duration]);
+  useEffect(() => {
+    const i = setInterval(() => setTick(t => (t + 1) % 4), 380);
+    return () => clearInterval(i);
+  }, []);
+
+  // Atom geometry — three rotated orbits + nucleus
+  const CX = 110, CY = 110;
+  const ORBITS = [
+    { rx: 90, ry: 32, rot: 0,   dur: 3.2, color: '#C084FF' },
+    { rx: 90, ry: 32, rot: 60,  dur: 4.0, color: '#6DF3FF' },
+    { rx: 90, ry: 32, rot: 120, dur: 4.8, color: '#FF7AE6' },
+  ];
+  const rotPath = (rx, ry, rotDeg) => {
+    const a = rotDeg * Math.PI / 180;
+    const x0 = (CX + rx * Math.cos(a)).toFixed(2);
+    const y0 = (CY + rx * Math.sin(a)).toFixed(2);
+    const x1 = (CX - rx * Math.cos(a)).toFixed(2);
+    const y1 = (CY - rx * Math.sin(a)).toFixed(2);
+    return `M ${x0} ${y0} A ${rx} ${ry} ${rotDeg} 1 1 ${x1} ${y1} A ${rx} ${ry} ${rotDeg} 1 1 ${x0} ${y0}`;
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 500,
+      background: 'radial-gradient(ellipse at center, rgba(40,15,80,0.55), #07020F 70%)',
+      display: 'grid', placeItems: 'center',
+      animation: 'q-fade-up 0.28s ease-out',
+      overflow: 'hidden',
+    }}>
+      <QAmbient intensity={1.1} />
+      <QParticles count={36} seed={7} />
+
+      {/* outer halo */}
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        width: 540, height: 540, marginLeft: -270, marginTop: -270,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(157,77,255,0.22), transparent 60%)',
+        animation: 'q-pulse 3.2s ease-in-out infinite',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ position: 'relative', display: 'grid', placeItems: 'center', gap: 28, zIndex: 2 }}>
+        <svg width="220" height="220" viewBox="0 0 220 220" style={{ overflow: 'visible' }}>
+          <defs>
+            {ORBITS.map((o, i) => (
+              <path key={i} id={`qls-orbit-${i}`} d={rotPath(o.rx, o.ry, o.rot)} />
+            ))}
+            <radialGradient id="qls-core" cx="35%" cy="30%">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="35%" stopColor="#C084FF" />
+              <stop offset="75%" stopColor="#6020E0" />
+              <stop offset="100%" stopColor="#2D0E66" />
+            </radialGradient>
+            <radialGradient id="qls-glow" cx="50%" cy="50%">
+              <stop offset="0%" stopColor="rgba(192,132,252,0.55)" />
+              <stop offset="100%" stopColor="rgba(157,77,255,0)" />
+            </radialGradient>
+          </defs>
+
+          {/* expanding rings */}
+          {[0,1,2].map(i => (
+            <circle key={`r${i}`} cx={CX} cy={CY} r={28} fill="none" stroke="#9D4DFF" opacity="0.4">
+              <animate attributeName="r" values="28;96;28" dur="3.4s" begin={`${i*0.55}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" begin={`${i*0.55}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+
+          {/* orbit paths */}
+          {ORBITS.map((o, i) => (
+            <ellipse key={`e${i}`} cx={CX} cy={CY} rx={o.rx} ry={o.ry}
+              fill="none" stroke={o.color} strokeOpacity="0.22" strokeWidth="0.8"
+              strokeDasharray="2 4"
+              transform={`rotate(${o.rot} ${CX} ${CY})`} />
+          ))}
+
+          {/* glow halo */}
+          <circle cx={CX} cy={CY} r={60} fill="url(#qls-glow)" />
+
+          {/* nucleus */}
+          <circle cx={CX} cy={CY} r={22} fill="url(#qls-core)" style={{
+            filter: 'drop-shadow(0 0 18px rgba(157,77,255,0.85))',
+          }}>
+            <animate attributeName="r" values="20;24;20" dur="2.4s" repeatCount="indefinite" />
+          </circle>
+
+          {/* electrons travelling along the orbits */}
+          {ORBITS.map((o, i) => (
+            <circle key={`p${i}`} r={4.2} fill={o.color} style={{ filter: `drop-shadow(0 0 8px ${o.color})` }}>
+              <animateMotion dur={`${o.dur}s`} repeatCount="indefinite" begin={`${-i*0.4}s`}>
+                <mpath href={`#qls-orbit-${i}`} />
+              </animateMotion>
+            </circle>
+          ))}
+        </svg>
+
+        {/* label */}
+        <div style={{ display: 'grid', placeItems: 'center', gap: 8, textAlign: 'center' }}>
+          <div className="q-mono" style={{
+            fontSize: 11, letterSpacing: '0.28em',
+            color: 'var(--q-violet-300)',
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: 'var(--q-accent-cyan)',
+              boxShadow: '0 0 8px var(--q-accent-cyan)',
+              animation: 'q-blink 1.2s ease-in-out infinite',
+            }} />
+            QUARK · {tr('SYNTHESIZING')}{'.'.repeat(tick)}
+          </div>
+          {message && (
+            <div style={{
+              fontSize: 18, fontWeight: 500, letterSpacing: '-0.015em',
+              background: 'linear-gradient(180deg, #FFFFFF, #C084FF 80%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>{tr(message)}</div>
+          )}
+          {sublabel && (
+            <div style={{ fontSize: 12.5, color: 'var(--q-text-3)', maxWidth: 320 }}>{tr(sublabel)}</div>
+          )}
+          <div style={{
+            marginTop: 6, width: 180, height: 2, borderRadius: 1,
+            background: 'rgba(168,85,247,0.10)', overflow: 'hidden',
+          }}>
+            <div className="q-shimmer" style={{ height: '100%' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.QLoadingScreen = QLoadingScreen;
+
 // Topbar
 function QTopbar({ title, subtitle, breadcrumb, actions }) {
   const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;

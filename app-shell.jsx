@@ -349,32 +349,64 @@ function QuarkRootInner({ tweaks }) {
   const tr = (typeof window.useTr === 'function') ? window.useTr() : (s)=>s;
   const [phase, setPhase] = React.useState(() => {
     if (localStorage.getItem('quark.session') === '1') {
-      return localStorage.getItem('quark.firstrun') === 'done' ? 'app' : 'app';
+      return localStorage.getItem('quark.firstrun') === 'done' ? 'app' : 'onboarding';
     }
     return 'login';
   });
+  const [loading, setLoading] = React.useState(null); // { message, sublabel, next }
+
+  const runLoading = (next, message, sublabel, duration = 1500) => {
+    setLoading({ message, sublabel, next, duration });
+  };
+
+  React.useEffect(() => {
+    if (!loading) return;
+    const t = setTimeout(() => {
+      const n = loading.next;
+      setLoading(null);
+      n && n();
+    }, loading.duration);
+    return () => clearTimeout(t);
+  }, [loading]);
 
   const onAuth = (info) => {
     localStorage.setItem('quark.session', '1');
-    if (info.mode === 'create' || localStorage.getItem('quark.firstrun') !== 'done') {
-      setPhase('onboarding');
-    } else {
-      setPhase('app');
-    }
+    const goOnboarding = info.mode === 'create' || localStorage.getItem('quark.firstrun') !== 'done';
+    runLoading(
+      () => setPhase(goOnboarding ? 'onboarding' : 'app'),
+      goOnboarding ? 'Preparing your onboarding' : 'Synthesizing your finances',
+      goOnboarding ? 'Booting Quark · indexing surfaces' : 'Streaming 90 days of patterns',
+      goOnboarding ? 1300 : 1700,
+    );
   };
   const finishOnboarding = () => {
     localStorage.setItem('quark.firstrun', 'done');
-    setPhase('app');
+    runLoading(
+      () => setPhase('app'),
+      'Entering Quark',
+      'Calibrating your digital twin',
+      1700,
+    );
   };
   const logout = () => {
     localStorage.removeItem('quark.session');
-    setPhase('login');
+    runLoading(() => setPhase('login'), 'Signing out', 'Sealing your session', 900);
   };
 
   React.useEffect(() => { window.__qLogout = logout; return () => { window.__qLogout = null; }; }, []);
 
-  if (phase === 'login') return <ScreenLogin onAuth={onAuth} />;
-  if (phase === 'onboarding') return (
+  // Loading overlay sits above whatever phase is currently mounted, so the underlying
+  // surface (login, onboarding, app) is already constructed when we fade out.
+  const Loader = (typeof window.QLoadingScreen === 'function') ? window.QLoadingScreen : null;
+  const loadingNode = loading && Loader ? (
+    <Loader message={loading.message} sublabel={loading.sublabel} />
+  ) : null;
+
+  if (phase === 'login') return (<>
+    <ScreenLogin onAuth={onAuth} />
+    {loadingNode}
+  </>);
+  if (phase === 'onboarding') return (<>
     <div style={{ position:'fixed', inset:0, zIndex:50, animation:'q-fade-up 0.4s ease-out' }}>
       <div style={{ position:'absolute', top:16, right:20, zIndex:60, display:'flex', gap:8 }}>
         <button onClick={finishOnboarding} className="q-btn q-btn-ghost" style={{ padding:'6px 12px', fontSize:12 }}>{tr('Skip')} · Esc</button>
@@ -382,8 +414,12 @@ function QuarkRootInner({ tweaks }) {
       </div>
       <ScreenOnboarding onFinish={finishOnboarding} />
     </div>
-  );
-  return <QuarkApp tweaks={tweaks} />;
+    {loadingNode}
+  </>);
+  return (<>
+    <QuarkApp tweaks={tweaks} />
+    {loadingNode}
+  </>);
 }
 
 // Wrap entire app in QLangProvider so useT/useTr is available everywhere
