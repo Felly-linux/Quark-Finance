@@ -1,145 +1,146 @@
 # Quark Finance
 
-> **Tu asistente financiero cuántico con IA.**
+> **Your AI-powered quantum financial assistant.**
 
-Quark Finance no es otra app de presupuestos. Es un **copiloto de inteligencia artificial** que vive en tus finanzas, detectando patrones, fugas y oportunidades que ningún humano vería manualmente.
+Quark Finance isn’t just another budgeting app. It’s an **AI co-pilot** that lives within your finances, detecting patterns, leaks, and opportunities that no human could spot manually.
 
-## ¿Qué es?
+## What is it?
 
-Una interfaz de finanzas personal de próxima generación — diseñada como un **centro de comando espacial** — donde cada dato cobra vida. Quark analiza tus transacciones, conecta cuentas bancarias, tarjetas, crypto e inversiones, y sintetiza todo en insights accionables en tiempo real.
+A next-generation personal finance interface—designed like a **space command center**—where every piece of data comes to life. Quark analyzes your transactions, connects bank accounts, cards, crypto, and investments, and synthesizes everything into actionable insights in real time.
 
-## ✨ Funcionalidades
+## ✨ Features
 
 ### 🧠 AI Copilot
-Chat conversacional con tu analista financiero personal. Pregunta "¿podré pagar el alquiler?" y obtén respuestas con probabilidades, trazas de razonamiento y fuentes verificables.
+Conversational chat with your personal financial analyst. Ask “Will I be able to pay the rent?” and get answers with probabilities, reasoning trails, and verifiable sources.
 
 ### 🕸️ Quantum Insights
-Grafo neural interactivo y force-directed que revela conexiones ocultas entre tu ingreso, gastos, estrés financiero y metas. Arrastra nodos, descubre correlaciones.
+An interactive, force-directed neural graph that reveals hidden connections between your income, expenses, financial stress, and goals. Drag nodes, discover correlations.
 
 ### 🎯 Risk Radar
-Mapa de amenazas en vivo: cuentas flotantes, suscripciones zombie, fugas de dinero y riesgos de liquidez — todo priorizado y con soluciones listas.
+Live threat map: floating accounts, zombie subscriptions, money leaks, and liquidity risks—all prioritized and with ready-made solutions.
 
 ### 👤 Digital Twin
-Gemelo financiero que simula tu futuro con **Monte Carlo · 10,000 caminos**. ¿Qué pasa si te ascienden? ¿Si tomas un sabático? ¿Si compras casa? Simulalo.
+A financial twin that simulates your future with **Monte Carlo · 10,000 paths**. What if you get promoted? What if you take a sabbatical? What if you buy a house? Simulate it.
 
 ### 🔮 Predictions
-Forecast de patrimonio con conos de probabilidad (P10/P50/P90). Escenarios personalizados escritos en lenguaje natural que Quark simula al instante.
+Wealth forecast with probability cones (P10/P50/P90). Custom scenarios written in natural language that Quark simulates instantly.
 
 ### 🚀 Missions
-Gamificación financiera: misiones con XP, niveles y arquetipos. Desde "cancelar 3 suscripciones zombie" hasta "ahorrar $50k para tu casa". Progreso visible, recompensas reales.
+Financial gamification: missions with XP, levels, and archetypes. From “cancel 3 zombie subscriptions” to “save $50k for your house.” Visible progress, real rewards.
 
 ### 📱 Multi-Provider AI Routing
-6 proveedores de IA configurados con fallback inteligente. Haiku como primario, Sonnet para razonamiento complejo, Gemini para clasificación masiva, Ollama local para datos sensibles.
+6 AI providers configured with smart fallback. Haiku as primary, Sonnet for complex reasoning, Gemini for massive classification, local Ollama for sensitive data.
 
-### 🌐 Bilingüe (EN / ES)
-Soporte completo de español e inglés. Cambio de idioma en tiempo real con persistencia en `localStorage`. ~370+ traducciones cubriendo cada pantalla.
+### 🌐 Bilingual (EN / ES)
+Full support for Spanish and English. Real-time language switching with persistence in `localStorage`. ~370+ translations covering every screen.
 
 ### 🛡️ Security & Privacy
-Centro de control de seguridad y privacidad. Toggle de telemetría, tratamiento de datos, sesiones activas, derechos del usuario (exportar, borrar, revocar). Ver sección **Seguridad informática** abajo.
+Security and privacy control center. Toggles for telemetry, data processing, active sessions, user rights (export, delete, revoke). See the **Cybersecurity** section below.
 
-## 🔐 Seguridad informática
+## 🔐 Cybersecurity
 
-Quark Finance trata tus finanzas con la misma rigurosidad que un banco — sin la opacidad. La filosofía es simple: **tus datos son tuyos. Punto.**
+Quark Finance treats your finances with the same rigor as a bank—without the opacity. The philosophy is simple: **your data is yours. Period.**
 
-### Cifrado
+### Encryption
 
-| Capa | Algoritmo | Detalles |
+| Layer | Algorithm | Details |
 |------|-----------|----------|
-| En reposo | **AES-256-GCM** | Nonce único por registro · autenticado |
-| En tránsito | **TLS 1.3** | HSTS · cert pinning · 0-RTT desactivado |
-| Derivación de clave | **Argon2id** | 256 MB · 3 iteraciones · paralelismo 4 |
-| Firma de auditoría | **Ed25519** | Logs hash-encadenados verificables |
+| At rest | **AES-256-GCM** | Unique nonce per record · authenticated |
+| In transit | **TLS 1.3** | HSTS · certificate pinning · 0-RTT disabled |
+| Key derivation | **Argon2id** | 256 MB · 3 iterations · 4-way parallelism |
+| Audit signature | **Ed25519** | Verifiable chained hash logs |
 
-### Filosofía Zero-Knowledge
+### Zero-Knowledge Philosophy
 
-Quark **no puede leer tu bóveda**. Las claves se derivan localmente desde tu contraseña maestra — el servidor solo almacena ciphertext opaco. Una orden judicial al servidor no compromete tus datos porque **el servidor literalmente no tiene la llave**.
+Quark **cannot read your vault**. Keys are derived locally from your master password—the server only stores opaque ciphertext. A court order against the server does not compromise your data because **the server literally does not have the key**.
 
-- 🔑 **Custodia local** — la clave maestra nunca sale de tu dispositivo
-- 🧮 **Inferencia IA opcional-local** — los prompts pueden quedarse en tu dispositivo (Ollama)
-- 📜 **Sin backdoors** — ni de Quark, ni de gobiernos, ni de "uso legítimo"
+- 🔑 **Local custody** — the master key never leaves your device
+- 🧮 **Optional local AI inference** — prompts can stay on your device (Ollama)
+- 📜 **No backdoors** — not from Quark, not from governments, not for “legitimate use”
 
-### Autenticación
+### Authentication
 
-- **2FA TOTP** con 6 códigos de respaldo cifrados
+- **TOTP 2FA** with 6 encrypted backup codes
 - **FIDO2 / WebAuthn** — YubiKey, Solo, TouchID Passkey
-- **Desbloqueo biométrico** (Face ID · Touch ID · Windows Hello)
-- **Tiempo de sesión configurable** (15min – 4h)
-- **Auto-bloqueo de bóveda** (1 / 5 / 15 / 60 min)
-- **Lista de sesiones activas** con revocación individual y "cerrar sesión en otros sitios"
+- **Biometric unlock** (Face ID · Touch ID · Windows Hello)
+- **Configurable session time** (15 min – 4 h)
+- **Auto-lock vault** (1 / 5 / 15 / 60 min)
+- **List of active sessions** with individual revocation and “log out of other sites”
 
-### Tratamiento de datos
+### Data Processing
 
-| Política | Default | Descripción |
+| Policy | Default | Description |
 |----------|---------|-------------|
-| Entrenamiento de IA | **OFF** | Quark **nunca** entrena modelos con tus transacciones |
-| Telemetría anónima | **OFF** | Solo frecuencias de uso · cero PII |
-| Reportes de fallos | **OFF** | Stack traces con estado redactado |
-| Agregación anónima | **OFF** | k-anonimato ≥ 50 si se activa |
-| Compartir con socios | **OFF** | Quark no vende ni cede datos a terceros de marketing |
-| Proveedores externos | configurable | Plaid, CoinGecko: solo lectura, granularidad por cuenta |
+| AI Training | **OFF** | Quark **never** trains models using your transactions |
+| Anonymous Telemetry | **OFF** | Usage frequencies only · zero PII |
+| Crash Reports | **OFF** | Stack traces with redacted status |
+| Anonymous Aggregation | **OFF** | k-anonymity ≥ 50 if enabled |
+| Share with partners | **OFF** | Quark does not sell or transfer data to third-party marketers |
+| Third-party providers | configurable | Plaid, CoinGecko: read-only, granularity by account |
 
-### Derechos del usuario (GDPR · CCPA · LGPD)
+### User rights (GDPR · CCPA · LGPD)
 
-- 📤 **Exportar todo** — JSON cifrado portable
-- 👁️ **Registro de acceso** — quién vio qué (Art. 15 GDPR)
-- 🔄 **Rotar todas las claves** — fuerza re-autenticación global
-- 🗑️ **Eliminar cuenta** — triturado criptográfico con 30 días de gracia
+- 📤 **Export all** — portable encrypted JSON
+- 👁️ **Access log** — who viewed what (Art. 15 GDPR)
+- 🔄 **Rotate all keys** — forces global re-authentication
+- 🗑️ **Delete account** — cryptographic shredding with 30-day grace period
 
-### Red y residencia
+### Network and residency
 
-- **Modo offline-first** — sync solo en Wi-Fi confiable, batería > 30%
-- **Acceso solo VPN** — bloquea peticiones fuera de tu túnel
-- **Lista blanca de IP** — ancla sesiones a redes conocidas
-- **Residencia de datos** seleccionable (EU / US / LATAM)
+- **Offline-first mode** — sync only on trusted Wi-Fi, battery > 30%
+- **VPN-only access** — blocks requests outside your tunnel
+- **IP whitelist** — anchors sessions to known networks
+- Selectable **data residency** (EU / US / LATAM)
 
-### Auditoría
+### Auditing
 
-- **Log inviolable** hash-encadenado y firmado con Ed25519
-- **Eventos de seguridad recientes** visibles en la pantalla de Seguridad
-- **Auditorías externas** — SOC 2 Type II · ISO 27001 · pentest Q3 2026
+- **Tamper-proof log** hashed and signed with Ed25519
+- **Recent security events** visible on the Security screen
+- **External audits** — SOC 2 Type II · ISO 27001 · pentest Q3 2026
 
-### Cumplimiento
+### Compliance
 
-GDPR · CCPA · LGPD · SOC 2 Type II · ISO 27001 · PCI DSS Level 1 (donde aplica) · auditoría de criptografía abierta y reproducible.
+GDPR · CCPA · LGPD · SOC 2 Type II · ISO 27001 · PCI DSS Level 1 (where applicable) · open and reproducible cryptography audit.
 
-> Configura todo desde **Sidebar → Security**. Cada toggle persiste en `localStorage` bajo la clave `quark.security` y emite un evento `quark-settings-changed` para sincronización en vivo.
+> Configure everything from **Sidebar → Security**. Each toggle persists in `localStorage` under the key `quark.security` and emits a `quark-settings-changed` event for live synchronization.
 
-## 🎨 Diseño
+## 🎨 Design
 
-- **Estética cósmica** con nebulosas de fondo, partículas flotantes y efecto glass
-- **Orbital onboarding** — conecta tus cuentas como electrones orbitando el núcleo de Quark
-- **Vista móvil** — preview en frame de iPhone con dashboard y chat
-- **Spotlight (⌘K)** — navegación rápida por toda la app
-- **Densidad ajustable** — modo Comfortable o Quantum Analyst
+- **Cosmic aesthetics** with nebulae in the background, floating particles, and a glass effect
+- **Orbital onboarding** — connect your accounts like electrons orbiting the Quark nucleus
+- **Mobile view** — preview in an iPhone frame with dashboard and chat
+- **Spotlight (⌘K)** — quick navigation throughout the app
+- **Adjustable density** — Comfortable or Quantum Analyst mode
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
 ```
 Finance/
 ├── auth.jsx          # Login, i18n (QLangProvider, TRANSLATIONS), MouseAmbient
 ├── app-shell.jsx     # Router, ScreenStub, MobilePreview, Spotlight, OnboardingOverlay
 ├── primitives.jsx    # QSidebar, QTopbar, QKpi, QSparkline, QLogo, QParticles
-├── charts.jsx        # Gráficos especializados (donut, radar, etc.)
+├── charts.jsx        # Specialized charts (donut, radar, etc.)
 ├── screens.jsx       # Dashboard, AI Copilot, Quantum Insights
 ├── screens2.jsx      # Risk Radar, Digital Twin, Predictions, Timeline
 ├── screens3.jsx      # Missions, AI Models, Onboarding, Mobile screens
 ├── interactive.jsx   # Force-directed graph, Settings, Security, Wallets, Analytics
-├── tweaks-panel.jsx  # Panel de ajustes en vivo (densidad, intensidad)
-├── tokens.css        # Design tokens (colores, animaciones, glass)
+├── tweaks-panel.jsx  # Live settings panel (density, intensity)
+├── tokens.css        # Design tokens (colors, animations, glass)
 └── index.html        # Entry point (React 18 + Babel standalone)
 ```
 
-## 🚀 Cómo usar
+## 🚀 How to use
 
-1. Abre `index.html` en tu navegador
-2. Inicia sesión o crea una cuenta (simulado)
-3. Pasa el onboarding orbital
-4. Explora las 12+ pantallas desde el sidebar
+1. Open `index.html` in your browser
+2. Log in or create an account (simulated)
+3. Complete the orbital onboarding
+4. Explore the 12+ screens from the sidebar
 
 ## 🛠️ Tech Stack
 
 - **React 18** (CDN)
-- **Babel Standalone** (JSX en browser)
-- **SVG** para todos los gráficos y animaciones
-- **Custom Events** para sincronización cross-component
-- **localStorage** para persistencia de sesión, idioma y moneda
+- **Babel Standalone** (JSX in browser)
+- **SVG** for all graphics and animations
+- **Custom Events** for cross-component synchronization
+- **localStorage** for session, language, and currency persistence
+
