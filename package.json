@@ -1,5 +1,4 @@
 {
-  "dependencies": {
-    "@vercel/speed-insights": "^2.0.0"
-  }
+  "private": true,
+  "description": "Quark Finance — static UI; open index.html or serve the folder"
 }

@@ -116,31 +116,34 @@ GDPR · CCPA · LGPD · SOC 2 Type II · ISO 27001 · PCI DSS Level 1 (where app
 
 ```
 Finance/
-├── auth.jsx          # Login, i18n (QLangProvider, TRANSLATIONS), MouseAmbient
-├── app-shell.jsx     # Router, ScreenStub, MobilePreview, Spotlight, OnboardingOverlay
-├── primitives.jsx    # QSidebar, QTopbar, QKpi, QSparkline, QLogo, QParticles
-├── charts.jsx        # Specialized charts (donut, radar, etc.)
-├── screens.jsx       # Dashboard, AI Copilot, Quantum Insights
-├── screens2.jsx      # Risk Radar, Digital Twin, Predictions, Timeline
-├── screens3.jsx      # Missions, AI Models, Onboarding, Mobile screens
-├── interactive.jsx   # Force-directed graph, Settings, Security, Wallets, Analytics
-├── tweaks-panel.jsx  # Live settings panel (density, intensity)
-├── tokens.css        # Design tokens (colors, animations, glass)
-└── index.html        # Entry point (React 18 + Babel standalone)
+├── supabase-config.example.js  # Template — copy to supabase-config.js (local, gitignored)
+├── schema.sql                  # Reference SQL schema (Supabase / Postgres)
+├── auth.jsx                    # Login, i18n (QLangProvider, TRANSLATIONS), MouseAmbient
+├── app-shell.jsx               # Router, ScreenStub, MobilePreview, Spotlight, OnboardingOverlay
+├── primitives.jsx              # QSidebar, QTopbar, QKpi, QSparkline, QLogo, QParticles
+├── charts.jsx                  # Specialized charts (donut, radar, etc.)
+├── screens.jsx                 # Dashboard, AI Copilot, Quantum Insights
+├── screens2.jsx                # Risk Radar, Digital Twin, Predictions, Timeline
+├── screens3.jsx                # Missions, AI Models, Onboarding, Mobile screens
+├── interactive.jsx             # Force-directed graph, Settings, Security, Wallets, Analytics
+├── tweaks-panel.jsx            # Live settings panel (density, intensity)
+├── tokens.css                  # Design tokens (colors, animations, glass)
+└── index.html                  # Entry point (React 18 + Babel standalone + Supabase)
 ```
 
 ## 🚀 How to use
 
-1. Open `index.html` in your browser
-2. Log in or create an account (simulated)
-3. Complete the orbital onboarding
-4. Explore the 12+ screens from the sidebar
+1. **Supabase (required):** copy `supabase-config.example.js` to `supabase-config.js` and set your project URL and *anon* key from the Supabase dashboard. That file is not committed to git.
+2. Open `index.html` in your browser (or serve the folder with any static file server).
+3. Log in or create an account (simulated).
+4. Complete the orbital onboarding.
+5. Explore the 12+ screens from the sidebar.
 
 ## 🛠️ Tech Stack
 
 - **React 18** (CDN)
 - **Babel Standalone** (JSX in browser)
+- **Supabase** (`@supabase/supabase-js` via CDN; URL and anon key in local `supabase-config.js`)
 - **SVG** for all graphics and animations
 - **Custom Events** for cross-component synchronization
 - **localStorage** for session, language, and currency persistence
-
